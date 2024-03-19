@@ -1,0 +1,214 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2758
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red70\green137\blue204;\red23\green23\blue23;\red194\green126\blue101;
+\red202\green202\blue202;\red167\green197\blue152;}
+{\*\expandedcolortbl;;\cssrgb\c33725\c61176\c83922;\cssrgb\c11765\c11765\c11765;\cssrgb\c80784\c56863\c47059;
+\cssrgb\c83137\c83137\c83137;\cssrgb\c70980\c80784\c65882;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 #include \cf4 \strokec4 <iostream>\cf5 \cb1 \strokec5 \
+\cf2 \cb3 \strokec2 #include \cf4 \strokec4 <vector>\cf5 \cb1 \strokec5 \
+\cf2 \cb3 \strokec2 #include \cf4 \strokec4 <cstdlib>\cf5 \cb1 \strokec5 \
+\cf2 \cb3 \strokec2 #include \cf4 \strokec4 <cstdio>\cf5 \cb1 \strokec5 \
+\
+\cf2 \cb3 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 int\cf5 \strokec5  image_height = \cf6 \strokec6 375\cf5 \strokec5 ;\cb1 \
+\cf2 \cb3 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 int\cf5 \strokec5  image_width = \cf6 \strokec6 500\cf5 \strokec5 ;\cb1 \
+\cf2 \cb3 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 int\cf5 \strokec5  num_channels = \cf6 \strokec6 3\cf5 \strokec5 ;\cb1 \
+\
+\cf2 \cb3 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 double\cf5 \strokec5  matrix_fs[\cf6 \strokec6 3\cf5 \strokec5 ][\cf6 \strokec6 3\cf5 \strokec5 ] = \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \{\cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 \},\cb1 \
+\cb3     \{\cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 7.0\cf5 \strokec5 /\cf6 \strokec6 16\cf5 \strokec5 \},\cb1 \
+\cb3     \{\cf6 \strokec6 3.0\cf5 \strokec5 /\cf6 \strokec6 16\cf5 \strokec5 , \cf6 \strokec6 5.0\cf5 \strokec5 /\cf6 \strokec6 16\cf5 \strokec5 , \cf6 \strokec6 1.0\cf5 \strokec5 /\cf6 \strokec6 16\cf5 \strokec5 \}\cb1 \
+\cb3 \};\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 double\cf5 \strokec5  mirror_fs_matrix[\cf6 \strokec6 3\cf5 \strokec5 ][\cf6 \strokec6 3\cf5 \strokec5 ] = \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \{\cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 \},\cb1 \
+\cb3     \{\cf6 \strokec6 7.0\cf5 \strokec5 /\cf6 \strokec6 16.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 , \cf6 \strokec6 0.0\cf5 \strokec5 \},\cb1 \
+\cb3     \{\cf6 \strokec6 1.0\cf5 \strokec5 /\cf6 \strokec6 16.0\cf5 \strokec5 , \cf6 \strokec6 5.0\cf5 \strokec5 /\cf6 \strokec6 16.0\cf5 \strokec5 , \cf6 \strokec6 3.0\cf5 \strokec5 /\cf6 \strokec6 16.0\cf5 \strokec5 \}\cb1 \
+\cb3 \};\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5  round_value(\cf2 \strokec2 double\cf5 \strokec5  val) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \cf2 \strokec2 if\cf5 \strokec5  (val > \cf6 \strokec6 255\cf5 \strokec5 )\cb1 \
+\cb3         \cf2 \strokec2 return\cf5 \strokec5  \cf6 \strokec6 255\cf5 \strokec5 ;\cb1 \
+\cb3     \cf2 \strokec2 else\cf5 \strokec5  \cf2 \strokec2 if\cf5 \strokec5  (val < \cf6 \strokec6 0\cf5 \strokec5 )\cb1 \
+\cb3         \cf2 \strokec2 return\cf5 \strokec5  \cf6 \strokec6 0\cf5 \strokec5 ;\cb1 \
+\cb3     \cf2 \strokec2 else\cf5 \cb1 \strokec5 \
+\cb3         \cf2 \strokec2 return\cf5 \strokec5  \cf2 \strokec2 static_cast\cf5 \strokec5 <\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 >(val);\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 void\cf5 \strokec5  read_raw_file(\cf2 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 char*\cf5 \strokec5  file_name, std::vector<std::vector<std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  image_data) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     FILE* file;\cb1 \
+\cb3     file = fopen(file_name, \cf4 \strokec4 "rb"\cf5 \strokec5 );\cb1 \
+\cb3     \cf2 \strokec2 if\cf5 \strokec5  (!file) \{\cb1 \
+\cb3         std::cout << \cf4 \strokec4 "File does not exist"\cf5 \strokec5  << std::endl;\cb1 \
+\cb3         exit(\cf6 \strokec6 1\cf5 \strokec5 );\cb1 \
+\cb3     \}\cb1 \
+\
+\cb3     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < image_height; row++) \{\cb1 \
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3             \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  channel = \cf6 \strokec6 0\cf5 \strokec5 ; channel < num_channels; ++channel) \{\cb1 \
+\cb3                 fread(&image_data[row][col][channel], \cf2 \strokec2 sizeof\cf5 \strokec5 (\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 ), \cf6 \strokec6 1\cf5 \strokec5 , file);\cb1 \
+\cb3             \}\cb1 \
+\cb3         \}\cb1 \
+\cb3     \}\cb1 \
+\
+\cb3     fclose(file);\cb1 \
+\cb3 \}\cb1 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 void\cf5 \strokec5  mirror_function(std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  mirror, \cf2 \strokec2 const\cf5 \strokec5  std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  image) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \cf2 \strokec2 int\cf5 \strokec5  padded_height = image_height + \cf6 \strokec6 2\cf5 \strokec5 ;\cb1 \
+\cb3     \cf2 \strokec2 int\cf5 \strokec5  padded_width = image_width + \cf6 \strokec6 2\cf5 \strokec5 ;\cb1 \
+\
+\cb3     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  k = \cf6 \strokec6 0\cf5 \strokec5 ; k < num_channels; k++) \{\cb1 \
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < image_height; row++) \{\cb1 \
+\cb3             \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3                 mirror[row + \cf6 \strokec6 1\cf5 \strokec5 ][col + \cf6 \strokec6 1\cf5 \strokec5 ][k] = image[row][col][k];\cb1 \
+\cb3             \}\cb1 \
+\cb3         \}\cb1 \
+\
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3             mirror[\cf6 \strokec6 0\cf5 \strokec5 ][col + \cf6 \strokec6 1\cf5 \strokec5 ][k] = image[\cf6 \strokec6 1\cf5 \strokec5 ][col][k]; \cb1 \
+\cb3             mirror[padded_height - \cf6 \strokec6 1\cf5 \strokec5 ][col + \cf6 \strokec6 1\cf5 \strokec5 ][k] = image[image_height - \cf6 \strokec6 2\cf5 \strokec5 ][col][k]; \cb1 \
+\cb3         \}\cb1 \
+\
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < padded_height; row++) \{\cb1 \
+\cb3             mirror[row][\cf6 \strokec6 0\cf5 \strokec5 ][k] = mirror[row][\cf6 \strokec6 2\cf5 \strokec5 ][k]; \cb1 \
+\cb3             mirror[row][padded_width - \cf6 \strokec6 1\cf5 \strokec5 ][k] = mirror[row][padded_width - \cf6 \strokec6 3\cf5 \strokec5 ][k]; \cb1 \
+\cb3         \}\cb1 \
+\cb3     \}\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 void\cf5 \strokec5  diffusion_process(std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  padded_img, std::vector<std::vector<std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  image_data, \cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3                         \cf2 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 double\cf5 \strokec5  diff_matrix[\cf6 \strokec6 3\cf5 \strokec5 ][\cf6 \strokec6 3\cf5 \strokec5 ], \cf2 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 double\cf5 \strokec5  diff_mirror_matrix[\cf6 \strokec6 3\cf5 \strokec5 ][\cf6 \strokec6 3\cf5 \strokec5 ], \cf2 \strokec2 int\cf5 \strokec5  padding_size) \{\cb1 \
+\cb3     \cf2 \strokec2 double\cf5 \strokec5  error;\cb1 \
+\
+\cb3     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  k = \cf6 \strokec6 0\cf5 \strokec5 ; k < num_channels; k++) \{\cb1 \
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < image_height; row++) \{\cb1 \
+\cb3             \cf2 \strokec2 if\cf5 \strokec5  (row % \cf6 \strokec6 2\cf5 \strokec5  == \cf6 \strokec6 0\cf5 \strokec5 ) \{\cb1 \
+\cb3                 \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3                     \cf2 \strokec2 if\cf5 \strokec5  (padded_img[row + padding_size][col + padding_size][k] > \cf6 \strokec6 0.5\cf5 \strokec5 ) \{\cb1 \
+\cb3                         error = padded_img[row + padding_size][col + padding_size][k] - \cf6 \strokec6 1.0\cf5 \strokec5 ;\cb1 \
+\cb3                         padded_img[row + padding_size][col + padding_size][k] = \cf6 \strokec6 1.0\cf5 \strokec5 ;\cb1 \
+\cb3                     \} \cf2 \strokec2 else\cf5 \strokec5  \{\cb1 \
+\cb3                         error = padded_img[row + padding_size][col + padding_size][k] - \cf6 \strokec6 0.0\cf5 \strokec5 ;\cb1 \
+\cb3                         padded_img[row + padding_size][col + padding_size][k] = \cf6 \strokec6 0.0\cf5 \strokec5 ;\cb1 \
+\cb3                     \}\cb1 \
+\
+\cb3                     \cf2 \strokec2 int\cf5 \strokec5  idx_r = \cf6 \strokec6 0\cf5 \strokec5 ;\cb1 \
+\cb3                     \cf2 \strokec2 int\cf5 \strokec5  idx_c = \cf6 \strokec6 0\cf5 \strokec5 ;\cb1 \
+\cb3                     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  i = row; i <= row + (\cf6 \strokec6 2\cf5 \strokec5 *padding_size); i++) \{\cb1 \
+\cb3                         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  j = col; j <= col + (\cf6 \strokec6 2\cf5 \strokec5 *padding_size); j++) \{\cb1 \
+\cb3                             padded_img[i][j][k] += (diff_matrix[idx_r][idx_c] * error);\cb1 \
+\cb3                             idx_c++;\cb1 \
+\cb3                         \}\cb1 \
+\cb3                         idx_r++;\cb1 \
+\cb3                         idx_c = \cf6 \strokec6 0\cf5 \strokec5 ;\cb1 \
+\cb3                     \}\cb1 \
+\cb3                 \}\cb1 \
+\cb3             \} \cf2 \strokec2 else\cf5 \strokec5  \{\cb1 \
+\cb3                 \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = image_width + (\cf6 \strokec6 2\cf5 \strokec5 *padding_size) - \cf6 \strokec6 1\cf5 \strokec5 ; col >= (\cf6 \strokec6 2\cf5 \strokec5 *padding_size); col--) \{\cb1 \
+\cb3                     \cf2 \strokec2 if\cf5 \strokec5  (padded_img[row + padding_size][col - padding_size][k] > \cf6 \strokec6 0.5\cf5 \strokec5 ) \{\cb1 \
+\cb3                         error = padded_img[row + padding_size][col - padding_size][k] - \cf6 \strokec6 1.0\cf5 \strokec5 ;\cb1 \
+\cb3                         padded_img[row + padding_size][col - padding_size][k] = \cf6 \strokec6 1.0\cf5 \strokec5 ;\cb1 \
+\cb3                     \} \cf2 \strokec2 else\cf5 \strokec5  \{\cb1 \
+\cb3                         error = padded_img[row + padding_size][col - padding_size][k] - \cf6 \strokec6 0.0\cf5 \strokec5 ;\cb1 \
+\cb3                         padded_img[row  + padding_size][col - padding_size][k] = \cf6 \strokec6 0.0\cf5 \strokec5 ;\cb1 \
+\cb3                     \}\cb1 \
+\
+\cb3                     \cf2 \strokec2 int\cf5 \strokec5  idx_r = \cf6 \strokec6 0\cf5 \strokec5 ;\cb1 \
+\cb3                     \cf2 \strokec2 int\cf5 \strokec5  idx_c = \cf6 \strokec6 2\cf5 \strokec5 *padding_size;\cb1 \
+\cb3                     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  i = row; i <= row + (\cf6 \strokec6 2\cf5 \strokec5 *padding_size); i++) \{\cb1 \
+\cb3                         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  j = col; j > col - (\cf6 \strokec6 2\cf5 \strokec5 *padding_size + \cf6 \strokec6 1\cf5 \strokec5 ); j--) \{\cb1 \
+\cb3                             padded_img[i][j][k] += (diff_mirror_matrix[idx_r][idx_c] * error);\cb1 \
+\cb3                             idx_c--;\cb1 \
+\cb3                         \}\cb1 \
+\cb3                         idx_r++;\cb1 \
+\cb3                         idx_c = \cf6 \strokec6 2\cf5 \strokec5 *padding_size;\cb1 \
+\cb3                     \}\cb1 \
+\cb3                 \}\cb1 \
+\cb3             \}\cb1 \
+\cb3         \}\cb1 \
+\cb3     \}\cb1 \
+\
+\cb3     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  k = \cf6 \strokec6 0\cf5 \strokec5 ; k < num_channels; k++) \{\cb1 \
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < image_height; row++) \{\cb1 \
+\cb3             \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3                 \cf2 \strokec2 double\cf5 \strokec5  temp = \cf6 \strokec6 1\cf5 \strokec5  - padded_img[row + padding_size][col + padding_size][k];\cb1 \
+\cb3                 image_data[row][col][k] = round_value(\cf6 \strokec6 255\cf5 \strokec5  * temp);\cb1 \
+\cb3             \}\cb1 \
+\cb3         \}\cb1 \
+\cb3     \}\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 void\cf5 \strokec5  rgb_to_cmy(\cf2 \strokec2 const\cf5 \strokec5  std::vector<std::vector<std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  image_data, std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  cmy_data) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < image_height; row++) \{\cb1 \
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3             \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  channel = \cf6 \strokec6 0\cf5 \strokec5 ; channel < num_channels; ++channel) \{\cb1 \
+\cb3                 cmy_data[row][col][channel] = \cf6 \strokec6 1\cf5 \strokec5  - (image_data[row][col][channel] / \cf6 \strokec6 255.0\cf5 \strokec5 );\cb1 \
+\cb3             \}\cb1 \
+\cb3         \}\cb1 \
+\cb3     \}\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 void\cf5 \strokec5  write_raw_file(\cf2 \strokec2 const\cf5 \strokec5  \cf2 \strokec2 char*\cf5 \strokec5  file_name, \cf2 \strokec2 const\cf5 \strokec5  std::vector<std::vector<std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 > > >\cf2 \strokec2 &\cf5 \strokec5  output_data) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     FILE* file;\cb1 \
+\cb3     file = fopen(file_name, \cf4 \strokec4 "wb"\cf5 \strokec5 );\cb1 \
+\cb3     \cf2 \strokec2 if\cf5 \strokec5  (!file) \{\cb1 \
+\cb3         std::cout << \cf4 \strokec4 "Cannot open the file"\cf5 \strokec5  << std::endl;\cb1 \
+\cb3         exit(\cf6 \strokec6 1\cf5 \strokec5 );\cb1 \
+\cb3     \}\cb1 \
+\
+\cb3     \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  row = \cf6 \strokec6 0\cf5 \strokec5 ; row < image_height; row++) \{\cb1 \
+\cb3         \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  col = \cf6 \strokec6 0\cf5 \strokec5 ; col < image_width; col++) \{\cb1 \
+\cb3             \cf2 \strokec2 for\cf5 \strokec5  (\cf2 \strokec2 int\cf5 \strokec5  channel = \cf6 \strokec6 0\cf5 \strokec5 ; channel < num_channels; ++channel) \{\cb1 \
+\cb3                 fwrite(&output_data[row][col][channel], \cf2 \strokec2 sizeof\cf5 \strokec5 (\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 ), \cf6 \strokec6 1\cf5 \strokec5 , file);\cb1 \
+\cb3             \}\cb1 \
+\cb3         \}\cb1 \
+\cb3     \}\cb1 \
+\cb3     fclose(file);\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 int\cf5 \strokec5  main(\cf2 \strokec2 int\cf5 \strokec5  argc, \cf2 \strokec2 char*\cf5 \strokec5  argv[]) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \cf2 \strokec2 int\cf5 \strokec5  filter_size = \cf6 \strokec6 3\cf5 \strokec5 ;\cb1 \
+\cb3     \cf2 \strokec2 int\cf5 \strokec5  padded_height = filter_size + image_height - \cf6 \strokec6 1\cf5 \strokec5 ;\cb1 \
+\cb3     \cf2 \strokec2 int\cf5 \strokec5  padded_width = filter_size + image_width - \cf6 \strokec6 1\cf5 \strokec5 ;\cb1 \
+\
+\cb3     \cf2 \strokec2 if\cf5 \strokec5  (argc < \cf6 \strokec6 3\cf5 \strokec5 ) \{\cb1 \
+\cb3         std::cout << \cf4 \strokec4 "Invalid Command"\cf5 \strokec5  << std::endl;\cb1 \
+\cb3         \cf2 \strokec2 return\cf5 \strokec5  \cf6 \strokec6 1\cf5 \strokec5 ;\cb1 \
+\cb3     \}\cb1 \
+\
+\cb3     std::vector<std::vector<std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 > > > image_data(image_height, std::vector<std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 > >(image_width, std::vector<\cf2 \strokec2 unsigned\cf5 \strokec5  \cf2 \strokec2 char\cf5 \strokec5 >(num_channels)));\cb1 \
+\cb3     std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > > padded_image_data(padded_height, std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > >(padded_width, std::vector<\cf2 \strokec2 double\cf5 \strokec5 >(num_channels)));\cb1 \
+\cb3     std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > > cmy_image_data(image_height, std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > >( image_width, std::vector<\cf2 \strokec2 double\cf5 \strokec5 >(num_channels)));\cb1 \
+\cb3     std::vector<std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > > > mirrored_cmy_image_data(padded_height, std::vector<std::vector<\cf2 \strokec2 double\cf5 \strokec5 > >(padded_width, std::vector<\cf2 \strokec2 double\cf5 \strokec5 >(num_channels)));\cb1 \
+\cb3     read_raw_file(argv[\cf6 \strokec6 1\cf5 \strokec5 ], image_data);\cb1 \
+\cb3     rgb_to_cmy(image_data, cmy_image_data);\cb1 \
+\cb3     mirror_function(mirrored_cmy_image_data, cmy_image_data);\cb1 \
+\cb3     diffusion_process(mirrored_cmy_image_data, image_data, matrix_fs, mirror_fs_matrix, \cf6 \strokec6 1\cf5 \strokec5 );\cb1 \
+\cb3     write_raw_file(argv[\cf6 \strokec6 2\cf5 \strokec5 ], image_data);\cb1 \
+\
+\cb3     \cf2 \strokec2 return\cf5 \strokec5  \cf6 \strokec6 0\cf5 \strokec5 ;\cb1 \
+\cb3 \}\cb1 \
+}

@@ -1,0 +1,105 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2758
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red25\green25\blue25;\red245\green245\blue245;\red8\green0\blue255;
+\red148\green0\blue242;\red15\green112\blue16;}
+{\*\expandedcolortbl;;\cssrgb\c12941\c12941\c12941;\cssrgb\c96863\c96863\c96863;\cssrgb\c5490\c0\c100000;
+\cssrgb\c65490\c3529\c96078;\cssrgb\c0\c50196\c7451;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+main()\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 function \cf2 main()\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3     input_image = imread(\cf5 'Pig.jpg'\cf2 );\cb1 \
+\cb3     [R, G, B] = separateRGB(input_image);\cb1 \
+\cb3     Y = 0.2989 * R + 0.5870 * G + 0.1140 * B;\cb1 \
+\
+\cb3     [x_norm, y_norm, Y, Y_norm, edge_map] = sobelEdgeDetection(Y);\cb1 \
+\
+\cb3     figure;\cb1 \
+\cb3     imshow(uint8(x_norm));\cb1 \
+\cb3     title(\cf5 'Normalized x-gradient'\cf2 );\cb1 \
+\
+\cb3     figure;\cb1 \
+\cb3     imshow(uint8(y_norm));\cb1 \
+\cb3     title(\cf5 'Normalized y-gradient'\cf2 );\cb1 \
+\
+\cb3     figure;\cb1 \
+\cb3     imshow(uint8(Y));\cb1 \
+\cb3     title(\cf5 'Sobel Edge Detection'\cf2 );\cb1 \
+\
+\cb3     figure;\cb1 \
+\cb3     imshow(uint8(Y_norm));\cb1 \
+\cb3     title(\cf5 'Sobel Edge Detection final'\cf2 );\cb1 \
+\
+\cb3     figure;\cb1 \
+\cb3     imshow(uint8(edge_map) * 255);  \cb1 \
+\cb3     title(\cf5 'Edge Map'\cf2 );\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 end\cf2 \cb1 \
+\
+\cf4 \cb3 function \cf2 [R, G, B] = separateRGB(rgb_image)\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3     R = rgb_image(:,:,1);\cb1 \
+\cb3     G = rgb_image(:,:,2);\cb1 \
+\cb3     B = rgb_image(:,:,3);\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 end\cf2 \cb1 \
+\
+\cf4 \cb3 function \cf2 [x_norm, y_norm, Y, Y_norm, edge_map] = sobelEdgeDetection(Y)\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3     \cf6 % Convert to double\cf2 \cb1 \
+\cb3     X = double(Y);\cb1 \
+\
+\cb3     \cf6 % Initialize matrices\cf2 \cb1 \
+\cb3     Gx = zeros(size(X));\cb1 \
+\cb3     Gy = zeros(size(X));\cb1 \
+\cb3     Y_norm = zeros(size(X));\cb1 \
+\
+\cb3     \cf6 % Sobel operator masks\cf2 \cb1 \
+\cb3     sobel_x = [-1 0 1; -2 0 2; -1 0 1];\cb1 \
+\cb3     sobel_y = [-1 -2 -1; 0 0 0; 1 2 1];\cb1 \
+\
+\cb3     \cf6 % Perform Sobel edge detection and gradient computation\cf2 \cb1 \
+\cb3     \cf4 for \cf2 i = 2:size(X, 1) - 1\cb1 \
+\cb3         \cf4 for \cf2 j = 2:size(X, 2) - 1\cb1 \
+\cb3             \cf6 % Compute gradients using Sobel masks\cf2 \cb1 \
+\cb3             Gx_val = sum(sum(sobel_x .* X(i - 1:i + 1, j - 1:j + 1)));\cb1 \
+\cb3             Gy_val = sum(sum(sobel_y .* X(i - 1:i + 1, j - 1:j + 1)));\cb1 \
+\
+\cb3             \cf6 % Gradient magnitude\cf2 \cb1 \
+\cb3             G = sqrt(Gx_val .^ 2 + Gy_val .^ 2);\cb1 \
+\cb3             Y_norm(i, j) = G;\cb1 \
+\
+\cb3             \cf6 % Thresholding\cf2 \cb1 \
+\cb3             \cf4 if \cf2 G > 127\cb1 \
+\cb3                 edge_map(i, j) = 0;\cb1 \
+\cb3             \cf4 else\cf2 \cb1 \
+\cb3                 edge_map(i, j) = 255;\cb1 \
+\cb3             \cf4 end\cf2 \cb1 \
+\
+\cb3             \cf6 % Store gradients\cf2 \cb1 \
+\cb3             Gx(i, j) = Gx_val;\cb1 \
+\cb3             Gy(i, j) = Gy_val;\cb1 \
+\cb3         \cf4 end\cf2 \cb1 \
+\cb3     \cf4 end\cf2 \cb1 \
+\
+\cb3     \cf6 % Normalize gradients\cf2 \cb1 \
+\cb3     x_norm = ((Gx - min(Gx(:))) ./ (max(Gx(:)) - min(Gx(:)))) .* 255;\cb1 \
+\cb3     y_norm = ((Gy - min(Gy(:))) ./ (max(Gy(:)) - min(Gy(:)))) .* 255;\cb1 \
+\
+\cb3     \cf6 % Compute final edge-detected image\cf2 \cb1 \
+\cb3     Y = sqrt(Gx.^2 + Gy.^2);\cb1 \
+\
+\cb3     \cf6 % Normalize Y\cf2 \cb1 \
+\cb3     Y_norm = 255 * ((Y - min(Y(:))) / (max(Y(:)) - min(Y(:))));\cb1 \
+\
+\cb3     \cf6 % Thresholding for edge map\cf2 \cb1 \
+\cb3     edge_map = Y_norm > 127;\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 end\cf2 \cb1 \
+}

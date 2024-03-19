@@ -1,0 +1,185 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red15\green112\blue16;\red0\green0\blue0;\red148\green0\blue242;
+\red8\green0\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c50196\c7451;\cssrgb\c0\c0\c0;\cssrgb\c65490\c3529\c96078;
+\cssrgb\c5490\c0\c100000;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 % Reading the image (dog)\cf0 \strokec3 \
+input_image = readrgb(\cf4 \strokec4 'dog.raw'\cf0 \strokec3 , 328, 328);\
+figure(1);\
+imshow(input_image);\
+title(\cf4 \strokec4 'Input Image: Dog'\cf0 \strokec3 );\
+\
+\cf2 \strokec2 % Process the image with elliptical star mapping\cf0 \strokec3 \
+warped_image = elliptical_star_mapping(input_image);\
+\
+\cf2 \strokec2 % Display the warped image\cf0 \strokec3 \
+figure(2);\
+imshow(warped_image);\
+title(\cf4 \strokec4 'Warped Image: Dog'\cf0 \strokec3 );\
+\
+reverse_warped_image = reverse_elliptical_star_mapping(warped_image);\
+\cf2 \strokec2 % Display the warped image\cf0 \strokec3 \
+figure(3);\
+imshow(reverse_warped_image);\
+title(\cf4 \strokec4 'Reverse Warped Image: Dog'\cf0 \strokec3 );\
+\
+\cf2 \strokec2 % Reading the image (cat)\cf0 \strokec3 \
+cat_input_image = readrgb(\cf4 \strokec4 'cat.raw'\cf0 \strokec3 , 328, 328);\
+figure(4);\
+imshow(cat_input_image);\
+title(\cf4 \strokec4 'Input Image: Cat'\cf0 \strokec3 );\
+\
+\cf2 \strokec2 % Process the image with elliptical star mapping\cf0 \strokec3 \
+cat_warped_image = elliptical_star_mapping(cat_input_image);\
+\
+\cf2 \strokec2 % Display the warped image\cf0 \strokec3 \
+figure(5);\
+imshow(cat_warped_image);\
+title(\cf4 \strokec4 'Warped Image: Cat'\cf0 \strokec3 );\
+\
+reverse_warped_image_cat = reverse_elliptical_star_mapping(cat_warped_image);\
+\cf2 \strokec2 % Display the warped image\cf0 \strokec3 \
+figure(6);\
+imshow(reverse_warped_image_cat);\
+title(\cf4 \strokec4 'Reverse Warped Image: Cat'\cf0 \strokec3 );\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \strokec5 function \cf0 \strokec3 O = elliptical_star_mapping(I)\
+    \cf2 \strokec2 % Initialize output image\cf0 \strokec3 \
+    O = zeros(328, 328, 3, \cf4 \strokec4 'uint8'\cf0 \strokec3 );\
+\
+    \cf2 \strokec2 % Extract RGB channels from input image\cf0 \strokec3 \
+    R = I(:,:,1);\
+    G = I(:,:,2);\
+    B = I(:,:,3);\
+\
+    \cf2 \strokec2 % Top triangle\cf0 \strokec3 \
+    \cf5 \strokec5 for \cf0 \strokec3 r = 1:164\
+        \cf5 \strokec5 for \cf0 \strokec3 c = r:(328 - r)\
+            u = round((0.2171 * r) + (0.7829 * c) + (0.0025 * r * r) + (-0.0001 * r * c) + (-0.0024 * c * c));\
+            v = c;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                O(u, v, 1) = R(r, c);\
+                O(u, v, 2) = G(r, c);\
+                O(u, v, 3) = B(r, c);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Bottom triangle\cf0 \strokec3 \
+    i = 1;\
+    \cf5 \strokec5 for \cf0 \strokec3 r = 165:328\
+        \cf5 \strokec5 for \cf0 \strokec3 c = (164 - i):(164 + i)\
+            u = round((1.7733 * r) + (-0.7733 * c) + (-0.0024 * r * r) + (0.0024 * c * c));\
+            v = c;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                O(u, v, 1) = R(r, c);\
+                O(u, v, 2) = G(r, c);\
+                O(u, v, 3) = B(r, c);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+        i = i + 1;\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Left triangle\cf0 \strokec3 \
+    \cf5 \strokec5 for \cf0 \strokec3 c = 1:164\
+        \cf5 \strokec5 for \cf0 \strokec3 r = c:(328 - c)\
+            v = round((0.7829 * r) + (0.2171 * c) + (-0.0024 * r * r) + (0.0024 * c * c));\
+            u = r;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                O(u, v, 1) = R(r, c);\
+                O(u, v, 2) = G(r, c);\
+                O(u, v, 3) = B(r, c);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Right triangle\cf0 \strokec3 \
+    i = 1;\
+    \cf5 \strokec5 for \cf0 \strokec3 c = 165:328\
+        \cf5 \strokec5 for \cf0 \strokec3 r = (164 - i):(164 + i)\
+            v = round((-0.7733 * r) + (1.7733 * c) + (0.0024 * r * r) + (-0.0024 * c * c));\
+            u = r;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                O(u, v, 1) = R(r, c);\
+                O(u, v, 2) = G(r, c);\
+                O(u, v, 3) = B(r, c);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+        i = i + 1;\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\cf5 \strokec5 end\cf0 \strokec3 \
+\
+\cf5 \strokec5 function \cf0 \strokec3 I = reverse_elliptical_star_mapping(O)\
+    \cf2 \strokec2 % Initialize input image\cf0 \strokec3 \
+    I = zeros(328, 328, 3, \cf4 \strokec4 'uint8'\cf0 \strokec3 );\
+\
+    \cf2 \strokec2 % Extract RGB channels from output image\cf0 \strokec3 \
+    R = O(:,:,1);\
+    G = O(:,:,2);\
+    B = O(:,:,3);\
+\
+    \cf2 \strokec2 % Reverse mapping for top triangle\cf0 \strokec3 \
+    \cf5 \strokec5 for \cf0 \strokec3 r = 1:164\
+        \cf5 \strokec5 for \cf0 \strokec3 c = r:(328 - r)\
+            u = round((0.2171 * r) + (0.7829 * c) + (0.0025 * r * r) + (-0.0001 * r * c) + (-0.0024 * c * c));\
+            v = c;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                I(r, c, 1) = R(u, v);\
+                I(r, c, 2) = G(u, v);\
+                I(r, c, 3) = B(u, v);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Reverse mapping for bottom triangle\cf0 \strokec3 \
+    i = 1;\
+    \cf5 \strokec5 for \cf0 \strokec3 r = 165:328\
+        \cf5 \strokec5 for \cf0 \strokec3 c = (164 - i):(164 + i)\
+            u = round((1.7733 * r) + (-0.7733 * c) + (-0.0024 * r * r) + (0.0024 * c * c));\
+            v = c;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                I(r, c, 1) = R(u, v);\
+                I(r, c, 2) = G(u, v);\
+                I(r, c, 3) = B(u, v);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+        i = i + 1;\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Reverse mapping for left triangle\cf0 \strokec3 \
+    \cf5 \strokec5 for \cf0 \strokec3 c = 1:164\
+        \cf5 \strokec5 for \cf0 \strokec3 r = c:(328 - c)\
+            v = round((0.7829 * r) + (0.2171 * c) + (-0.0024 * r * r) + (0.0024 * c * c));\
+            u = r;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                I(r, c, 1) = R(u, v);\
+                I(r, c, 2) = G(u, v);\
+                I(r, c, 3) = B(u, v);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Reverse mapping for right triangle\cf0 \strokec3 \
+    i = 1;\
+    \cf5 \strokec5 for \cf0 \strokec3 c = 165:328\
+        \cf5 \strokec5 for \cf0 \strokec3 r = (164 - i):(164 + i)\
+            v = round((-0.7733 * r) + (1.7733 * c) + (0.0024 * r * r) + (-0.0024 * c * c));\
+            u = r;\
+            \cf5 \strokec5 if \cf0 \strokec3 u >= 1 && u <= 328 && v >= 1 && v <= 328\
+                I(r, c, 1) = R(u, v);\
+                I(r, c, 2) = G(u, v);\
+                I(r, c, 3) = B(u, v);\
+            \cf5 \strokec5 end\cf0 \strokec3 \
+        \cf5 \strokec5 end\cf0 \strokec3 \
+        i = i + 1;\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\cf5 \strokec5 end\cf0 \strokec3 \
+\
+}

@@ -1,0 +1,102 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red148\green0\blue242;\red15\green112\blue16;
+\red8\green0\blue255;\red148\green0\blue242;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c65490\c3529\c96078;\cssrgb\c0\c50196\c7451;
+\cssrgb\c5490\c0\c100000;\cssrgb\c65490\c3529\c96078;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 createPanorama(\cf3 \strokec3 'top_left.raw'\cf0 \strokec2 , \cf3 \strokec3 'top_middle.raw'\cf0 \strokec2 , \cf3 \strokec3 'top_right.raw'\cf0 \strokec2 );\
+\pard\pardeftab720\partightenfactor0
+\cf4 \outl0\strokewidth0 \
+\pard\pardeftab720\partightenfactor0
+\cf4 % Function to create panorama from three raw images\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf5 function \cf0 createPanorama(leftImageFile, middleImageFile, rightImageFile)\
+    \cf4 % Load images from the specified files\cf0 \
+    leftImage = readrgb(leftImageFile, 768, 768);\
+    middleImage = readrgb(middleImageFile, 768, 768);\
+    rightImage = readrgb(rightImageFile, 768, 768);\
+\
+    \cf4 % Perform homographic transformation and image stitching\cf0 \
+    panorama = stitchImages(leftImage, middleImage, rightImage);\
+\
+    \cf4 % Display panorama\cf0 \
+    displayPanorama(panorama);\
+\cf5 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 % Function to read raw image file\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf5 function \cf0 image = readrgb(file_path, width, height)\
+    \cf4 % Open the raw data file\cf0 \
+    fid = fopen(file_path, \cf6 'rb'\cf0 );\
+    \
+    \cf4 % Read the raw data\cf0 \
+    raw_data = fread(fid, width * height * 3, \cf6 'uint8'\cf0 );\
+    \
+    \cf4 % Close the file\cf0 \
+    fclose(fid);\
+    \
+    \cf4 % Reshape the raw data into an image array\cf0 \
+    image = reshape(raw_data, [3, width, height]);\
+    \
+    \cf4 % Reorder dimensions and convert to uint8\cf0 \
+    image = uint8(permute(image, [3, 2, 1]));\
+\cf5 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 % Function to stitch images together\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf5 function \cf0 panorama = stitchImages(leftImage, middleImage, rightImage)\
+    \cf4 % Compute homographic transformations\cf0 \
+    [tformLeft, tformRight] = computeHomographies(leftImage, rightImage, size(leftImage, 2), size(leftImage, 1));\
+\
+    \cf4 % Apply transformations to the images\cf0 \
+    leftWarped = imwarp(leftImage, tformLeft);\
+    rightWarped = imwarp(rightImage, tformRight);\
+\
+    \cf4 % Determine output size for the stitched panorama\cf0 \
+    outputWidth = size(leftImage, 2) + size(middleImage, 2) + size(rightImage, 2);\
+    outputHeight = size(leftImage, 1);\
+\
+    \cf4 % Initialize the panorama\cf0 \
+    panorama = zeros(outputHeight, outputWidth, 3, \cf6 'like'\cf0 , leftImage);\
+\
+    \cf4 % Copy the warped left and right images to the panorama\cf0 \
+    panorama(:, 1:size(leftWarped, 2), :) = leftWarped;\
+    panorama(:, outputWidth - size(rightWarped, 2) + 1:outputWidth, :) = rightWarped;\
+\
+    \cf4 % Copy the middle image to the center of the panorama\cf0 \
+    startCol = size(leftWarped, 2) + 1;\
+    endCol = startCol + size(middleImage, 2) - 1;\
+    panorama(:, startCol:endCol, :) = middleImage;\
+\cf5 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 % Function to compute homographic transformations\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf5 function \cf0 [tformLeft, tformRight] = computeHomographies(leftImage, rightImage, width, height)\
+    \cf4 % Define corresponding points in the left and right images\cf0 \
+    leftPoints = [1, 1; 1, height; width, 1; width, height];\
+    rightPoints = [1, 1; 1, height; width, 1; width, height];\
+\
+    \cf4 % Estimate homographic transformations\cf0 \
+    tformLeft = fitgeotrans(rightPoints, leftPoints, \cf6 'projective'\cf0 );\
+    tformRight = fitgeotrans(leftPoints, rightPoints, \cf6 'projective'\cf0 );\
+\cf5 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 % Function to display the panorama\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf5 function \cf0 displayPanorama(panorama)\
+    \cf4 % Display the resulting panorama\cf0 \
+    figure;\
+    imshow(panorama);\
+    title(\cf6 'Stitched Panorama'\cf0 );\
+\cf5 end\cf0 \
+\
+}

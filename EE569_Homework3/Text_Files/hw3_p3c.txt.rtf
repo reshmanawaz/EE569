@@ -1,0 +1,106 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red15\green112\blue16;\red0\green0\blue0;\red148\green0\blue242;
+\red8\green0\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c50196\c7451;\cssrgb\c0\c0\c0;\cssrgb\c65490\c3529\c96078;
+\cssrgb\c5490\c0\c100000;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 % Reading the image (dog)\cf0 \strokec3 \
+input_image = readrgb(\cf4 \strokec4 'beans.raw'\cf0 \strokec3 , 494, 82);\
+figure(1);\
+imshow(input_image);\
+title(\cf4 \strokec4 'Input Image: Beans'\cf0 \strokec3 );\
+\
+[count, order] = analyze_beans(input_image);\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \strokec5 function \cf0 \strokec3 image = readrgb(file_path, width, height)\
+    \cf2 \strokec2 % Open the raw data file\cf0 \strokec3 \
+    fid = fopen(file_path, \cf4 \strokec4 'rb'\cf0 \strokec3 );\
+    \
+    \cf2 \strokec2 % Read the raw data\cf0 \strokec3 \
+    raw_data = fread(fid, width * height * 3, \cf4 \strokec4 'uint8'\cf0 \strokec3 );\
+    \
+    \cf2 \strokec2 % Close the file\cf0 \strokec3 \
+    fclose(fid);\
+    \
+    \cf2 \strokec2 % Reshape the raw data into an image array\cf0 \strokec3 \
+    image = reshape(raw_data, [3, width, height]);\
+    \
+    \cf2 \strokec2 % Reorder dimensions and convert to uint8\cf0 \strokec3 \
+    image = uint8(permute(image, [3, 2, 1]));\
+\cf5 \strokec5 end\cf0 \strokec3 \
+\
+\cf5 \strokec5 function \cf0 \strokec3 [bean_count, bean_order] = analyze_beans(input_image)\
+    \cf2 \strokec2 % Convert image to grayscale\cf0 \strokec3 \
+    gray_image = convert_to_grayscale(input_image);\
+\
+    \cf2 \strokec2 % Adaptive thresholding with adjusted sensitivity\cf0 \strokec3 \
+    binarized_image = adaptive_threshold(gray_image, 0.559); \
+\
+    \cf2 \strokec2 % Invert the binary image\cf0 \strokec3 \
+    binarized_image = ~binarized_image;\
+\
+    \cf2 \strokec2 % Perform morphological operations to enhance bean regions\cf0 \strokec3 \
+    se = strel(\cf4 \strokec4 'disk'\cf0 \strokec3 , 10); \
+    enhanced_image = imopen(binarized_image, se);\
+\
+    \cf2 \strokec2 % Fill holes in the binary image\cf0 \strokec3 \
+    filled_image = imfill(enhanced_image, \cf4 \strokec4 'holes'\cf0 \strokec3 );\
+\
+    \cf2 \strokec2 % Perform connected component analysis (labeling) to count the number of beans and generate a segmentation mask\cf0 \strokec3 \
+    [beans, bean_count] = bwlabel(filled_image, 4); \
+\
+    \cf2 \strokec2 % Initialize array to store bean sizes\cf0 \strokec3 \
+    bean_size = zeros(bean_count, 1);\
+\
+    \cf2 \strokec2 % Calculate area for each bean\cf0 \strokec3 \
+    \cf5 \strokec5 for \cf0 \strokec3 i = 1:bean_count\
+        bean_size(i) = sum(beans(:) == i);\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Sort the beans based on size\cf0 \strokec3 \
+    [~, bean_order] = sort(bean_size);\
+    \
+    \cf2 \strokec2 % Adjust bean order to start from smallest\cf0 \strokec3 \
+    bean_order = fliplr(bean_order);\
+\
+    \cf2 \strokec2 % Display the total number of beans\cf0 \strokec3 \
+    disp([\cf4 \strokec4 'Total beans = '\cf0 \strokec3 , num2str(bean_count)]);\
+\
+    \cf2 \strokec2 % Display bean order from smallest to largest\cf0 \strokec3 \
+    disp(\cf4 \strokec4 'Bean order from smallest to largest:'\cf0 \strokec3 )\
+    \cf5 \strokec5 for \cf0 \strokec3 i = 1:bean_count\
+        disp([\cf4 \strokec4 'Bean '\cf0 \strokec3 , num2str(bean_order(i))]);\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\cf5 \strokec5 end\cf0 \strokec3 \
+\
+\cf5 \strokec5 function \cf0 \strokec3 binarized_image = adaptive_threshold(image, sensitivity)\
+    \cf2 \strokec2 % Convert image to grayscale if it's not already grayscale\cf0 \strokec3 \
+    \cf5 \strokec5 if \cf0 \strokec3 size(image, 3) == 3\
+        gray_image = rgb2gray(image);\
+    \cf5 \strokec5 else\cf0 \strokec3 \
+        gray_image = image;\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\
+    \cf2 \strokec2 % Perform adaptive thresholding\cf0 \strokec3 \
+    threshold_image = adaptthresh(gray_image, sensitivity);\
+\
+    \cf2 \strokec2 % Binarize the image using the adaptive threshold\cf0 \strokec3 \
+    binarized_image = imbinarize(gray_image, threshold_image);\
+\cf5 \strokec5 end\cf0 \strokec3 \
+\
+\cf5 \strokec5 function \cf0 \strokec3 gray_image = convert_to_grayscale(input_image)\
+    \cf2 \strokec2 % Convert image to grayscale if it's not already grayscale\cf0 \strokec3 \
+    \cf5 \strokec5 if \cf0 \strokec3 size(input_image, 3) == 3\
+        gray_image = rgb2gray(input_image);\
+    \cf5 \strokec5 else\cf0 \strokec3 \
+        gray_image = input_image;\
+    \cf5 \strokec5 end\cf0 \strokec3 \
+\cf5 \strokec5 end\cf0 \strokec3 \
+\
+}

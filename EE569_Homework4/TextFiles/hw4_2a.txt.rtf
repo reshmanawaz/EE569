@@ -1,0 +1,233 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red15\green112\blue16;\red148\green0\blue242;\red8\green0\blue255;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c50196\c7451;\cssrgb\c65490\c3529\c96078;\cssrgb\c5490\c0\c100000;
+}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf2 \expnd0\expndtw0\kerning0
+% Steps: \cf0 \
+\cf2 % Define the twenty-five 5x5 Laws Filters.\cf0 \
+\cf2 % Extend the boundaries of the input image appropriately.\cf0 \
+\cf2 % Apply each filter to every pixel in the extended image.\cf0 \
+\cf2 % Compute the response vectors for each pixel.\cf0 \
+\
+height = 512;\
+width = 512;\
+channels = 1;\
+\
+Mosaic_raw = imread(\cf3 'composite.png'\cf0 );\
+\
+figure(1); \
+imshow(Mosaic_raw);\
+\
+\cf2 % Level [1,4,6,4,1] ->\cf0 \
+\cf2 % Level * Level \cf0 \
+Filter_Matrix(:,:,1) = [1 4 6 4 1; 4 16 24 16 4; 6 24 36 24 6; 4 16 24 16 4; 1 4 6 4 1]; \
+\cf2 % Level * Edge \cf0 \
+Filter_Matrix(:,:,2) = [-1 -2 0 2 1; -4 -8 0 4 8; -6 -12 0 12 6; -4 -8 0 8 4; -1 -2 0 2 1];\
+\cf2 % Level * Spot \cf0 \
+Filter_Matrix(:,:,3) = [-1 0 2 0 -1; -4 0 8 0 -4; -6 0 12 0 -6; -4 0 8 0 -4; -1 0 2 0 -1]; \
+\cf2 % Level * Wave \cf0 \
+Filter_Matrix(:,:,4) = [-1 2 0 -2 1; -4 8 0 -8 4; -6 12 0 -12 6; -4 8 0 -8 4; -1 2 0 -2 1];\
+\cf2 % Level * Ripple \cf0 \
+Filter_Matrix(:,:,5) = [1 -4 6 -4 1; 4 -16 24 -16 4; 6 -24 36 -24 6; 4 -16 24 -16 4; 1 -4 6 -4 1]; \
+\
+\cf2 % Edge [-1,-2,0,2,1] ->\cf0 \
+\cf2 % Edge * Level\cf0 \
+Filter_Matrix(:,:,6) = [-1 -4 -6 -4 -1; -2 -8 -12 -8 -2; 0 0 0 0 0; 2 8 12 8 12; 1 4 6 4 1]; \
+\cf2 % Edge * Edge \cf0 \
+Filter_Matrix(:,:,7) = [1 2 0 -2 -1; 2 4 0 -4 -2; 0 0 0 0 0; -2 -4 0 4 2; -1 -2 0 2 1];\
+\cf2 % Edge * Spot \cf0 \
+Filter_Matrix(:,:,8) = [1 0 -2 0 1; 2 0 -4 0 2; 0 0 0 0 0; -2 0 4 0 -2; -1 0 2 0 -1];\
+\cf2 % Edge * Wave \cf0 \
+Filter_Matrix(:,:,9) = [1 -2 0 2 -1; 2 -4 0 4 -2; 0 0 0 0 0; -2 4 0 -4 2; -1 2 0 -2 1];\
+\cf2 % Edge * Ripple\cf0 \
+Filter_Matrix(:,:,10) = [-1 4 -6 4 -1; -2 8 -12 8 -2; 0 0 0 0 0; 2 -8 12 -8 2; 1 -4 6 -4 1]; \
+\
+\cf2 % Spot [-1,0,2,0,-1] ->\cf0 \
+\cf2 % Spot * Level\cf0 \
+Filter_Matrix(:,:,11) = [-1 -4 -6 -4 -1; 0 0 0 0 0; 2 8 12 8 2; 0 0 0 0 0; -1 -4 -6 -4 -1]; \
+\cf2 % Spot * Edge \cf0 \
+Filter_Matrix(:,:,12) = [1 2 0 -2 -1; 0 0 0 0 0; -2 -4 0 4 2; 0 0 0 0 0; 1 2 0 -2 -1];\
+\cf2 % Spot * Spot \cf0 \
+Filter_Matrix(:,:,13) = [1 0 -2 0 1; 0 0 0 0 0; -2 0 4 0 -2; 0 0 0 0 0; 1 0 -2 0 1]; \
+\cf2 % Spot * Wave \cf0 \
+Filter_Matrix(:,:,14) = [1 -2 0 2 1; 0 0 0 0 0; -2 4 0 -4 2; 0 0 0 0 0; 1 -2 0 2 -1]; \
+\cf2 % Spot * Ripple \cf0 \
+Filter_Matrix(:,:,15) = [-1 4 -6 4 -1; 0 0 0 0 0; 2 -8 12 -8 2; 0 0 0 0 0; -1 4 -6 4 -1]; \
+\
+\cf2 % Wave [-1,2,0,-2,1] ->\cf0 \
+\cf2 % Wave * Level\cf0 \
+Filter_Matrix(:,:,16) = [-1 -4 -6 -4 -1; 2 8 12 8 2; 0 0 0 0 0; -2 -8 -12 -8 -2; 1 4 6 4 1];\
+\cf2 % Wave * Edge \cf0 \
+Filter_Matrix(:,:,17) = [1 2 0 -2 -1; -2 -4 0 4 2; 0 0 0 0 0; 2 4 0 -4 -2; -1 -2 0 2 1]; \
+\cf2 % Wave * Spot\cf0 \
+Filter_Matrix(:,:,18) = [1 0 -2 0 1; -2 0 4 0 -2; 0 0 0 0 0; 2 0 -4 0 2; -1 0 2 0 -1]; \
+\cf2 % Wave * Wave \cf0 \
+Filter_Matrix(:,:,19) = [1 -2 0 2 -1; -2 4 0 -4 2; 0 0 0 0 0; 2 -4 0 4 -2; -1 2 0 -2 1];\
+\cf2 % Wave * Ripple \cf0 \
+Filter_Matrix(:,:,20) = [-1 4 -6 4 -1; 2 -8 12 -8 2; 0 0 0 0 0; -2 8 -12 8 -2; 1 -4 6 -4 1]; \
+\
+\cf2 % Ripple [1,-4,6,-4,1] ->\cf0 \
+\cf2 % Ripple * Level \cf0 \
+Filter_Matrix(:,:,21) = [1 4 6 4 1; -4 -16 -24 -16 -4; 6 24 36 24 6; -4 -16 -24 -16 -4; 1 4 6 4 1];\
+\cf2 % Ripple * Edge \cf0 \
+Filter_Matrix(:,:,22) = [-1 -2 0 2 1; 4 8 0 -8 -4; -6 -12 0 12 6; 4 8 0 -8 -4; -1 -2 0 2 1];\
+\cf2 % Ripple * Spot\cf0 \
+Filter_Matrix(:,:,23) = [-1 0 2 0 -1; 4 0 -8 0 4; -6 0 12 0 -6; 4 0 -8 0 4; -1 0 2 0 -1]; \
+\cf2 % Ripple * Wave\cf0 \
+Filter_Matrix(:,:,24) = [-1 2 0 -2 1; 4 -8 0 8 -4; -6 12 0 -12 6; 4 -8 0 8 -4; -1 2 0 -2 1]; \
+\cf2 % Ripple * Ripple\cf0 \
+Filter_Matrix(:,:,25) = [1 -4 6 -4 1; -4 16 -24 16 -4; 6 -24 36 -24 6; -4 16 -24 16 -4; 1 -4 6 -4 1]; \
+\
+Mosaic_Energy_feature = Filter(Mosaic_raw, Filter_Matrix, 45, height, width);\
+\
+\cf2 %Normalization\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf4 for \cf0 k=1:24\
+    NormalisedMean = mean(Mosaic_Energy_feature(:,:,k));\
+    NormalisedStd = std(Mosaic_Energy_feature(:,:,k));\
+\
+    \cf4 for \cf0 i=1:512\
+        \cf4 for \cf0 j=1:512\
+            Mosaic_Energy_feature(i, j, k) = (Mosaic_Energy_feature(i, j, k) - NormalisedMean) / NormalisedStd;\
+        \cf4 end\cf0 \
+    \cf4 end\cf0 \
+\cf4 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 %Reshape\cf0 \
+Mosaic_Reshape = reshape(Mosaic_Energy_feature,[512*512 24]);\
+\
+\cf2 %performing k-means clustering\cf0 \
+ MaxIters = 100000;\
+ output_Kmeans = kmeans(Mosaic_Reshape, 5, \cf3 'Distance'\cf0 , \cf3 'sqeuclidean'\cf0 , \cf3 'MaxIter'\cf0 , MaxIters,\cf3 'OnlinePhase'\cf0 ,\cf3 'on'\cf0 );\
+ label_intensity_map = [0, 63, 127, 191, 255];\
+ output_Kmeans_reshape = reshape(output_Kmeans, [512 512]);\
+\
+\cf2 %initiazlie segmentation output with 0's\cf0 \
+ Segmentation_output = zeros(512, 512);\
+\
+\cf2 % define the mapping of labels to intensity levels\cf0 \
+\
+\
+ \cf4 for \cf0 i = 1:512\
+     \cf4 for \cf0 j = 1:512\
+        \cf2 % Check for Valid Indeces \cf0 \
+         \cf4 if \cf0 output_Kmeans_reshape(i,j) >= 1 && output_Kmeans_reshape(i,j) <= numel(label_intensity_map)\
+             Segmentation_output(i,j) = label_intensity_map(output_Kmeans_reshape(i,j));\
+        \cf4 else\cf0 \
+            \cf2 % fprintf('Index out of bounds at (%d, %d)\\n', i, j);\cf0 \
+             Segmentation_output(i,j) = 0; \
+        \cf4 end\cf0 \
+     \cf4 end\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf4 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 % disp(Segmentation_output);\cf0 \
+ Segmentation_output = uint8(Segmentation_output);\
+ figure(2); \
+ imshow(Segmentation_output);\
+\
+\cf2 %function to apply the law's filters\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf4 function \cf0 p_energy_out = Filter(data_input, Filter_Matrix, window, height, width)\
+    vector = \{\};\
+    p_energy = zeros(height, width, 25); \cf2 %pixel energy\cf0 \
+    p_energy_out = zeros(height, width, 24); \cf2 %pixel energy output \cf0 \
+    \
+    mean = 0;\
+    \cf4 for \cf0 row = 1:512\
+        \cf4 for \cf0 col = 1: 512\
+            mean = mean + data_input(row,col);\
+        \cf4 end\cf0 \
+    \cf4 end\cf0 \
+    mean = (mean / (height*width));\
+\
+     \cf4 for \cf0 row = 1:height\
+         \cf4 for \cf0 col = 1:width\
+             data_input(row,col) = (data_input(row,col)-mean);\
+         \cf4 end\cf0 \
+     \cf4 end\cf0 \
+      \
+    pad_img = zeros(516, 516);\
+    \cf4 for \cf0 i = 3:514\
+        \cf4 for \cf0 j = 3:514\
+            pad_img(i,j) = data_input(i-2,j-2);\
+        \cf4 end\cf0 \
+\
+    \cf4 end\cf0 \
+    \cf2 %pad_img(3:514, 3:514) = data_input; \cf0 \
+    \
+    \cf4 for \cf0 filter_index = 1:size(Filter_Matrix,3)\
+        filters = Filter_Matrix(:,:,filter_index);\
+        out = zeros(height, width);\
+        \cf4 for \cf0 row = 1: 512\
+            \cf4 for \cf0 col = 1: 512\
+                out(row,col) = convolution(pad_img, row, col,filters);\
+            \cf4 end\cf0 \
+        \cf4 end\cf0 \
+        \
+        vector = [vector, out];\
+    \cf4 end\cf0 \
+    \
+   \
+    \cf4 for \cf0 i = 1:25\
+        \
+        matrix = cell2mat(vector(i));\
+        Padding_size = (window-1)/2;\
+        matrix_mirror_padding = padarray(matrix,[Padding_size Padding_size],\cf3 'symmetric'\cf0 );\
+        \cf4 for \cf0 row = 1:height\
+            \cf4 for \cf0 col = 1:width\
+                energy = energy_colvolution(matrix_mirror_padding, row, col, window);\
+                p_energy(row,col, i) = energy;\
+            \cf4 end\cf0 \
+        \cf4 end\cf0 \
+    \cf4 end\cf0 \
+    \
+     \
+     \cf4 for \cf0 i = 1:size(p_energy,1)\
+         \cf4 for \cf0 j = 1:size(p_energy,2)\
+             \cf4 for \cf0 k = 2:size(p_energy,3)\
+                 p_energy_out(i,j,k-1) = p_energy(i,j,k);\
+             \cf4 end\cf0 \
+         \cf4 end\cf0 \
+     \cf4 end\cf0 \
+\cf4 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 %function to compute the energy convolution\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf4 function \cf0 out = energy_colvolution(input_data, row, col, window)\
+    out = 0;\
+    \cf4 for \cf0 i = 0:window-1\
+        \cf4 for \cf0 j = 0:window-1\
+            out = out + (input_data(row+i, col+j)*input_data(row+i, col+j));\
+        \cf4 end\cf0 \
+        out = out /(window * window);\
+    \cf4 end\cf0 \
+\cf4 end\cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 %function to perfom the convolution\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf4 function \cf0 out = convolution(input_data, row, col, filter)\
+    out = 0;\
+    \cf4 for \cf0 i = 0:4\
+        \cf4 for \cf0 j = 0:4\
+            out = out + (input_data(row+i, col+j) * filter(i+1, j+1));\
+        \cf4 end\cf0 \
+    \cf4 end\cf0 \
+\cf4 end\cf0 \
+\
+\
+\
+\
+\
+\
+}

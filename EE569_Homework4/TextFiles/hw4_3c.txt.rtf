@@ -1,0 +1,130 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red148\green0\blue242;\red15\green112\blue16;
+\red8\green0\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c65490\c3529\c96078;\cssrgb\c0\c50196\c7451;
+\cssrgb\c5490\c0\c100000;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 clear \cf3 \strokec3 all\cf0 \strokec2 ;\
+close \cf3 \strokec3 all\cf0 \strokec2 ;\
+\
+cat1_img = imread(\cf3 \strokec3 "cat_1.png"\cf0 \strokec2 );\
+cat2_img = imread(\cf3 \strokec3 "cat_2.png"\cf0 \strokec2 );\
+cat3_img = imread(\cf3 \strokec3 "cat_3.png"\cf0 \strokec2 );\
+dog1_img = imread(\cf3 \strokec3 "dog_1.png"\cf0 \strokec2 );\
+\
+cat1_gray = single(rgb2gray(cat1_img));\
+cat2_gray = single(rgb2gray(cat2_img));\
+cat3_gray = single(rgb2gray(cat3_img));\
+dog1_gray = single(rgb2gray(dog1_img));\
+\
+[cat1_features, cat1_descriptors] = vl_sift(cat1_gray, \cf3 \strokec3 'Octaves'\cf0 \strokec2 , 4, \cf3 \strokec3 'Levels'\cf0 \strokec2 , 5, \cf3 \strokec3 'PeakThresh'\cf0 \strokec2 , 0, \cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 , 5);\
+[cat2_features, cat2_descriptors] = vl_sift(cat2_gray, \cf3 \strokec3 'Octaves'\cf0 \strokec2 , 4, \cf3 \strokec3 'Levels'\cf0 \strokec2 , 5, \cf3 \strokec3 'PeakThresh'\cf0 \strokec2 , 0, \cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 , 5);\
+[cat3_features, cat3_descriptors] = vl_sift(cat3_gray, \cf3 \strokec3 'Octaves'\cf0 \strokec2 , 4, \cf3 \strokec3 'Levels'\cf0 \strokec2 , 5, \cf3 \strokec3 'PeakThresh'\cf0 \strokec2 , 0, \cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 , 5);\
+[dog1_features, dog1_descriptors] = vl_sift(dog1_gray, \cf3 \strokec3 'Octaves'\cf0 \strokec2 , 4, \cf3 \strokec3 'Levels'\cf0 \strokec2 , 5, \cf3 \strokec3 'PeakThresh'\cf0 \strokec2 , 0, \cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 , 5);\
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 \strokec4 % Stack descriptors\cf0 \strokec2 \
+all_descriptors = [double(cat1_descriptors), double(cat2_descriptors), double(cat3_descriptors), double(dog1_descriptors)];\
+\
+\cf4 \strokec4 % Perform K-means clustering\cf0 \strokec2 \
+num_clusters = 8; \
+[idx, C] = kmeans(all_descriptors', num_clusters);\
+\
+\cf4 \strokec4 % Initialize frequency arrays\cf0 \strokec2 \
+f1 = zeros(8, 1);\
+f2 = zeros(8, 1);\
+f3 = zeros(8, 1);\
+f4 = zeros(8, 1);\
+\
+\cf4 \strokec4 % Separate cluster indices for each image\cf0 \strokec2 \
+c1 = idx(1:182);\
+c2 = idx(183:386); \
+c3 = idx(387:576); \
+c4 = idx(577:764); \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \strokec5 for \cf0 \strokec2 i=1:182\
+    f1(c1(i)) = f1(c1(i)) + 1;\
+\cf5 \strokec5 end\cf0 \strokec2 \
+\
+\cf5 \strokec5 for \cf0 \strokec2 i=1:204\
+    f2(c2(i)) = f2(c2(i)) + 1;\
+\cf5 \strokec5 end\cf0 \strokec2 \
+\
+\cf5 \strokec5 for \cf0 \strokec2 i=1:190\
+    f3(c3(i)) = f3(c3(i)) + 1;\
+\cf5 \strokec5 end\cf0 \strokec2 \
+\cf5 \strokec5 for \cf0 \strokec2 i=1:188\
+    f4(c4(i)) = f4(c4(i)) + 1;\
+\cf5 \strokec5 end\cf0 \strokec2 \
+\
+f1 = f1./182;\
+f2 = f2./204;\
+f3 = f3./190;\
+f4 = f4./188;\
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 \strokec4 % Plot histograms\cf0 \strokec2 \
+figure;\
+subplot(2, 2, 1);\
+bar(f1);\
+title(\cf3 \strokec3 'Cat 1'\cf0 \strokec2 );\
+xlabel(\cf3 \strokec3 'Cluster'\cf0 \strokec2 );\
+ylabel(\cf3 \strokec3 'Frequency'\cf0 \strokec2 );\
+\
+subplot(2, 2, 2);\
+bar(f2);\
+title(\cf3 \strokec3 'Cat 2'\cf0 \strokec2 );\
+xlabel(\cf3 \strokec3 'Cluster'\cf0 \strokec2 );\
+ylabel(\cf3 \strokec3 'Frequency'\cf0 \strokec2 );\
+\
+subplot(2, 2, 3);\
+bar(f3);\
+title(\cf3 \strokec3 'Cat 3'\cf0 \strokec2 );\
+xlabel(\cf3 \strokec3 'Cluster'\cf0 \strokec2 );\
+ylabel(\cf3 \strokec3 'Frequency'\cf0 \strokec2 );\
+\
+subplot(2, 2, 4);\
+bar(f4);\
+title(\cf3 \strokec3 'Dog 1'\cf0 \strokec2 );\
+xlabel(\cf3 \strokec3 'Cluster'\cf0 \strokec2 );\
+ylabel(\cf3 \strokec3 'Frequency'\cf0 \strokec2 );\
+\
+numerator = 0 ;\
+denominator = 0 ;\
+similarityf3_f1 = 0;\
+similarityf3_f2 = 0;\
+similarityf3_f4 = 0;\
+\pard\pardeftab720\partightenfactor0
+\cf5 \strokec5 for \cf0 \strokec2 i = 1 :8\
+    numerator  = numerator + min(f3(i),f1(i));\
+    denominator = denominator + max(f3(i),f1(i));\
+\cf5 \strokec5 end\cf0 \strokec2 \
+\
+similarityf3_f1 = numerator / denominator;\
+disp(similarityf3_f1);\
+\
+numerator = 0 ;\
+denominator = 0 ;\
+\
+\cf5 \strokec5 for \cf0 \strokec2 i = 1 :8\
+    numerator  = numerator + min(f3(i),f2(i));\
+    denominator = denominator + max(f3(i),f2(i));\
+\cf5 \strokec5 end\cf0 \strokec2 \
+similarityf3_f2 = numerator / denominator;\
+disp(similarityf3_f2);\
+numerator = 0 ;\
+denominator = 0 ;\
+\
+\cf5 \strokec5 for \cf0 \strokec2 i = 1 :8\
+    numerator  = numerator + min(f3(i),f4(i));\
+    denominator = denominator + max(f3(i),f4(i));\
+\cf5 \strokec5 end\cf0 \strokec2 \
+similarityf3_f4 = numerator / denominator;\
+disp(similarityf3_f4);\
+}

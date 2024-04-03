@@ -1,0 +1,148 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red148\green0\blue242;\red15\green112\blue16;
+\red8\green0\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c65490\c3529\c96078;\cssrgb\c0\c50196\c7451;
+\cssrgb\c5490\c0\c100000;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 clear \cf3 \strokec3 all\cf0 \strokec2 ;\
+close \cf3 \strokec3 all\cf0 \strokec2 ;\
+\
+cat1_img = imread(\cf3 \strokec3 "cat_1.png"\cf0 \strokec2 );\
+cat2_img = imread(\cf3 \strokec3 "cat_2.png"\cf0 \strokec2 );\
+cat3_img = imread(\cf3 \strokec3 "cat_3.png"\cf0 \strokec2 );\
+dog1_img = imread(\cf3 \strokec3 "dog_1.png"\cf0 \strokec2 );\
+\
+cat1_gray = single(rgb2gray(cat1_img));\
+cat2_gray = single(rgb2gray(cat2_img));\
+cat3_gray = single(rgb2gray(cat3_img));\
+dog1_gray = single(rgb2gray(dog1_img));\
+\
+[cat1_features, cat1_descriptors] = vl_sift(cat1_gray,\cf3 \strokec3 'Octaves'\cf0 \strokec2 ,4,\cf3 \strokec3 'Levels'\cf0 \strokec2 ,5,\cf3 \strokec3 'PeakThresh'\cf0 \strokec2 ,0,\cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 ,5);\
+[cat2_features, cat2_descriptors] = vl_sift(cat2_gray,\cf3 \strokec3 'Octaves'\cf0 \strokec2 ,4,\cf3 \strokec3 'Levels'\cf0 \strokec2 ,5,\cf3 \strokec3 'PeakThresh'\cf0 \strokec2 ,0,\cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 ,5);\
+[cat3_features, cat3_descriptors] = vl_sift(cat3_gray,\cf3 \strokec3 'Octaves'\cf0 \strokec2 ,4,\cf3 \strokec3 'Levels'\cf0 \strokec2 ,5,\cf3 \strokec3 'PeakThresh'\cf0 \strokec2 ,0,\cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 ,5);\
+[dog1_features, dog1_descriptors] = vl_sift(dog1_gray,\cf3 \strokec3 'Octaves'\cf0 \strokec2 ,4,\cf3 \strokec3 'Levels'\cf0 \strokec2 ,5,\cf3 \strokec3 'PeakThresh'\cf0 \strokec2 ,0,\cf3 \strokec3 'EdgeThresh'\cf0 \strokec2 ,5);\
+\
+cat1_largest_scale = largestscale(cat1_features(3,:));\
+dog1_largest_scale = largestscale(dog1_features(3,:));\
+\
+cat1_ls_descriptor = cat1_descriptors(:,cat1_largest_scale);\
+cat1_ls_descriptor = double(cat1_ls_descriptor);\
+dog1_ls_descriptor = dog1_descriptors(:, dog1_largest_scale);\
+dog1_ls_descriptor = double(dog1_ls_descriptor);\
+\
+index_cat1_cat3 = nearest_neighbor(cat3_descriptors, cat1_ls_descriptor);\
+nearest_cat3_from_cat1 = cat3_descriptors(:,index_cat1_cat3);\
+index_dog1_cat3 = nearest_neighbor(cat3_descriptors, dog1_ls_descriptor);\
+nearest_cat3_from_dog1 = cat3_descriptors(:,index_dog1_cat3);\
+index_cat1_cat2 = nearest_neighbor(cat2_descriptors, cat1_ls_descriptor);\
+nearest_cat2_from_cat1 = cat2_descriptors(:,index_cat1_cat2);\
+index_cat1_dog1 = nearest_neighbor(dog1_descriptors, cat1_ls_descriptor);\
+nearest_dog1_from_cat1 = dog1_descriptors(:,index_cat1_dog1);\
+\
+figure, subplot(1,2,1),imshow(uint8(cat1_img));\
+set(vl_plotframe(cat1_features(:,cat1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 1);\
+vl_plotsiftdescriptor(cat1_ls_descriptor,cat1_features(:,cat1_largest_scale));\
+title(\cf3 \strokec3 'Cat 1'\cf0 \strokec2 )\
+\
+subplot(1,2,2), imshow(uint8(cat3_img));\
+set(vl_plotframe(cat3_features(:,index_cat1_cat3)),\cf3 \strokec3 'linewidth'\cf0 \strokec2 , 1);\
+vl_plotsiftdescriptor(cat3_descriptors(:,index_cat1_cat3), cat3_features(:,index_cat1_cat3));\
+title(\cf3 \strokec3 'Cat 3'\cf0 \strokec2 )\
+\
+figure, subplot(1,2,1),imshow(uint8(dog1_img));\
+set(vl_plotframe(dog1_features(:,dog1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 2, \cf3 \strokec3 'color'\cf0 \strokec2 , \cf3 \strokec3 'red'\cf0 \strokec2 );\
+set(vl_plotsiftdescriptor(dog1_ls_descriptor,dog1_features(:,dog1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 2);\
+title(\cf3 \strokec3 'Dog 1'\cf0 \strokec2 )\
+\
+subplot(1,2,2), imshow(uint8(cat3_img));\
+set(vl_plotframe(cat3_features(:,index_dog1_cat3)),\cf3 \strokec3 'linewidth'\cf0 \strokec2 , 1);\
+vl_plotsiftdescriptor(cat3_descriptors(:,index_dog1_cat3), cat3_features(:,index_dog1_cat3));\
+title(\cf3 \strokec3 'Cat 3'\cf0 \strokec2 )\
+\
+figure, subplot(1,2,1),imshow(uint8(cat1_img));\
+set(vl_plotframe(cat1_features(:,cat1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 2, \cf3 \strokec3 'color'\cf0 \strokec2 , \cf3 \strokec3 'red'\cf0 \strokec2 );\
+set(vl_plotsiftdescriptor(cat1_ls_descriptor,cat1_features(:,cat1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 2);\
+title(\cf3 \strokec3 'Cat 1'\cf0 \strokec2 )\
+\
+subplot(1,2,2), imshow(uint8(dog1_img));\
+set(vl_plotframe(dog1_features(:,index_dog1_cat3)),\cf3 \strokec3 'linewidth'\cf0 \strokec2 , 1);\
+vl_plotsiftdescriptor(dog1_descriptors(:,index_dog1_cat3), cat3_features(:,index_dog1_cat3));\
+title(\cf3 \strokec3 'Dog 1'\cf0 \strokec2 )\
+\
+figure, subplot(1,2,1),imshow(uint8(dog1_img));\
+set(vl_plotframe(dog1_features(:,dog1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 2, \cf3 \strokec3 'color'\cf0 \strokec2 , \cf3 \strokec3 'red'\cf0 \strokec2 );\
+set(vl_plotsiftdescriptor(dog1_ls_descriptor,dog1_features(:,dog1_largest_scale)), \cf3 \strokec3 'linewidth'\cf0 \strokec2 , 2);\
+title(\cf3 \strokec3 'Cat 1'\cf0 \strokec2 )\
+\
+subplot(1,2,2), imshow(uint8(cat3_img));\
+set(vl_plotframe(cat3_features(:,index_dog1_cat3)),\cf3 \strokec3 'linewidth'\cf0 \strokec2 , 1);\
+vl_plotsiftdescriptor(cat3_descriptors(:,index_dog1_cat3), cat3_features(:,index_dog1_cat3));\
+title(\cf3 \strokec3 'Cat 3'\cf0 \strokec2 )\
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 \strokec4 % Plotting SIFT pairs between Cat 1 and Cat 3\cf0 \strokec2 \
+plot_pairs(cat1_descriptors, cat3_descriptors, cat1_features, cat3_features, cat1_img, cat3_img);\
+title(\cf3 \strokec3 'SIFT Pairs Between Cat 1 and Cat 3'\cf0 \strokec2 );\
+\
+\cf4 \strokec4 % Plotting SIFT pairs between Dog 1 and Cat 3\cf0 \strokec2 \
+plot_pairs(dog1_descriptors, cat3_descriptors, dog1_features, cat3_features, dog1_img, cat3_img);\
+title(\cf3 \strokec3 'SIFT Pairs Between Dog 1 and Cat 3'\cf0 \strokec2 );\
+\
+\cf4 \strokec4 % Plotting SIFT pairs between Cat 1 and Cat 2\cf0 \strokec2 \
+plot_pairs(cat3_descriptors, cat2_descriptors, cat3_features, cat2_features, cat3_img, cat2_img);\
+title(\cf3 \strokec3 'SIFT Pairs Between Cat 3 and Cat 2'\cf0 \strokec2 );\
+\
+\cf4 \strokec4 % Plotting SIFT pairs between Cat 1 and Dog 1\cf0 \strokec2 \
+plot_pairs(cat1_descriptors, dog1_descriptors, cat1_features, dog1_features, cat1_img, dog1_img);\
+title(\cf3 \strokec3 'SIFT Pairs Between Cat 1 and Dog 1'\cf0 \strokec2 );\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \strokec5 function \cf0 \strokec2 plot_pairs(d1, d2, f1, f2, I1, I2)\
+    [match1and2, scores] = vl_ubcmatch(d1,d2);\
+\
+    figure, clf; \
+    imagesc(uint8(cat(2, I1, I2)));\
+\
+    x1 = f1(1,match1and2(1,:));\
+    x2 = f2(1,match1and2(2,:)) + size(I1,2);\
+    y1 = f1(2,match1and2(1,:));\
+    y2 = f2(2,match1and2(2,:));\
+\
+    set(line([x1 ; x2], [y1 ; y2]),\cf3 \strokec3 'linewidth'\cf0 \strokec2 , 1, \cf3 \strokec3 'color'\cf0 \strokec2 , \cf3 \strokec3 'blue'\cf0 \strokec2 );\
+\
+    vl_plotframe(f1(:,match1and2(1,:)));\
+    f2(1,:) = f2(1,:) + size(I1,2);\
+    vl_plotframe(f2(:,match1and2(2,:)));\
+    axis \cf3 \strokec3 image off\cf0 \strokec2 ;\
+\cf5 \strokec5 end\cf0 \strokec2 \
+\
+\cf5 \strokec5 function \cf0 \strokec2 index_i = nearest_neighbor(desc, ref)\
+    distance_min = 999999999999.00;\
+    \cf5 \strokec5 for \cf0 \strokec2 i = 1:size(desc,2)\
+        val = double(desc(:,i));\
+        distance_i = (val-ref).^2;\
+        distance = sum(distance_i);\
+\
+        \cf5 \strokec5 if \cf0 \strokec2 distance < distance_min\
+            distance_min = distance;\
+            index_i = i;\
+        \cf5 \strokec5 end\cf0 \strokec2 \
+    \cf5 \strokec5 end\cf0 \strokec2 \
+\cf5 \strokec5 end\cf0 \strokec2 \
+\
+\cf5 \strokec5 function \cf0 \strokec2 index = largestscale(f)\
+    largest_scale = 0;\
+    \cf5 \strokec5 for \cf0 \strokec2 i = 1:size(f,2)\
+        scale = f(i);\
+        \cf5 \strokec5 if \cf0 \strokec2 (largest_scale < scale)\
+            largest_scale = scale;\
+            index = i;\
+        \cf5 \strokec5 end\cf0 \strokec2 \
+    \cf5 \strokec5 end\cf0 \strokec2 \
+\cf5 \strokec5 end\cf0 \strokec2 \
+}

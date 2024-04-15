@@ -1,0 +1,184 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red183\green111\blue179;\red23\green23\blue23;\red202\green202\blue202;
+\red167\green197\blue152;\red70\green137\blue204;\red67\green192\blue160;\red212\green212\blue212;\red212\green214\blue154;
+\red140\green211\blue254;\red89\green156\blue62;\red113\green184\blue255;\red194\green126\blue101;}
+{\*\expandedcolortbl;;\cssrgb\c77255\c52549\c75294;\cssrgb\c11765\c11765\c11765;\cssrgb\c83137\c83137\c83137;
+\cssrgb\c70980\c80784\c65882;\cssrgb\c33725\c61176\c83922;\cssrgb\c30588\c78824\c69020;\cssrgb\c86275\c86275\c86275;\cssrgb\c86275\c86275\c66667;
+\cssrgb\c61176\c86275\c99608;\cssrgb\c41569\c66275\c30980;\cssrgb\c50980\c77647\c100000;\cssrgb\c80784\c56863\c47059;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 import\cf4 \strokec4  torch\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torch.nn \cf2 \strokec2 as\cf4 \strokec4  nn\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torch.nn.functional \cf2 \strokec2 as\cf4 \strokec4  F\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torch.optim \cf2 \strokec2 as\cf4 \strokec4  optim\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torchvision \cf2 \strokec2 as\cf4 \strokec4  tv\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torchvision.transforms \cf2 \strokec2 as\cf4 \strokec4  transforms\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  matplotlib.pyplot \cf2 \strokec2 as\cf4 \strokec4  plt\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  numpy \cf2 \strokec2 as\cf4 \strokec4  np\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  math\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  os\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 from\cf4 \strokec4  collections \cf2 \strokec2 import\cf4 \strokec4  Counter\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 from\cf4 \strokec4  sklearn.metrics \cf2 \strokec2 import\cf4 \strokec4  confusion_matrix\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  seaborn \cf2 \strokec2 as\cf4 \strokec4  sns\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  itertools\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4 train_batch_size = \cf5 \strokec5 64\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4 test_batch_size = \cf5 \strokec5 1000\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 class\cf4 \strokec4  \cf7 \strokec7 Net\cf4 \strokec4 (\cf7 \strokec7 nn\cf4 \strokec4 .\cf7 \strokec7 Module\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    \cf6 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 __init__\cf4 \strokec4 (\cf10 \strokec10 self\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        super\cf8 \strokec8 (\cf4 \strokec4 Net\cf8 \strokec8 ,\cf4 \strokec4  \cf10 \strokec10 self\cf8 \strokec8 )\cf4 \strokec4 .\cf9 \strokec9 __init__\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .conv1 = nn.Conv2d\cf8 \strokec8 (\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 6\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 5\cf8 \strokec8 ,\cf4 \strokec4  stride=\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  padding=\cf5 \strokec5 2\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .conv2 = nn.Conv2d\cf8 \strokec8 (\cf5 \strokec5 6\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 16\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 5\cf8 \strokec8 ,\cf4 \strokec4  stride=\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  padding=\cf5 \strokec5 0\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .fc1 = nn.Linear\cf8 \strokec8 (\cf5 \strokec5 16\cf4 \strokec4 *\cf5 \strokec5 5\cf4 \strokec4 *\cf5 \strokec5 5\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 120\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .fc2 = nn.Linear\cf8 \strokec8 (\cf5 \strokec5 120\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 84\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .fc3 = nn.Linear\cf8 \strokec8 (\cf5 \strokec5 84\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 10\cf8 \strokec8 )\cf4 \strokec4   \cf11 \strokec11 # Change from 10 to 10 for Fashion-MNIST\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf6 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 forward\cf4 \strokec4 (\cf10 \strokec10 self\cf4 \strokec4 , \cf10 \strokec10 x\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.max_pool2d\cf8 \strokec8 (\cf4 \strokec4 F.relu\cf8 \strokec8 (\cf10 \strokec10 self\cf4 \strokec4 .conv1\cf8 \strokec8 (\cf4 \strokec4 x\cf8 \strokec8 )),\cf4 \strokec4  \cf5 \strokec5 2\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.max_pool2d\cf8 \strokec8 (\cf4 \strokec4 F.relu\cf8 \strokec8 (\cf10 \strokec10 self\cf4 \strokec4 .conv2\cf8 \strokec8 (\cf4 \strokec4 x\cf8 \strokec8 )),\cf4 \strokec4  \cf5 \strokec5 2\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = x.view\cf8 \strokec8 (\cf5 \strokec5 -1\cf8 \strokec8 ,\cf4 \strokec4  \cf10 \strokec10 self\cf4 \strokec4 .num_flat_features\cf8 \strokec8 (\cf4 \strokec4 x\cf8 \strokec8 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.relu\cf8 \strokec8 (\cf10 \strokec10 self\cf4 \strokec4 .fc1\cf8 \strokec8 (\cf4 \strokec4 x\cf8 \strokec8 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.relu\cf8 \strokec8 (\cf10 \strokec10 self\cf4 \strokec4 .fc2\cf8 \strokec8 (\cf4 \strokec4 x\cf8 \strokec8 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = \cf10 \strokec10 self\cf4 \strokec4 .fc3\cf8 \strokec8 (\cf4 \strokec4 x\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 return\cf4 \strokec4  x\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf6 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 num_flat_features\cf4 \strokec4 (\cf10 \strokec10 self\cf4 \strokec4 , \cf10 \strokec10 x\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x_size = x.size\cf8 \strokec8 ()[\cf5 \strokec5 1\cf8 \strokec8 :]\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        num = \cf5 \strokec5 1\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 for\cf4 \strokec4  n \cf12 \strokec12 in\cf4 \strokec4  x_size\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            num *= n\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 return\cf4 \strokec4  num\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 noise\cf4 \strokec4 (\cf10 \strokec10 labels\cf4 \strokec4 , \cf10 \strokec10 noise_rate\cf4 \strokec4 =\cf5 \strokec5 0.4\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4     counts = Counter\cf8 \strokec8 (\cf4 \strokec4 labels.tolist\cf8 \strokec8 ())\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     rates = \cf8 \strokec8 [\cf7 \strokec7 int\cf8 \strokec8 (\cf4 \strokec4 noise_rate * counts\cf8 \strokec8 [\cf4 \strokec4 i\cf8 \strokec8 ])\cf4 \strokec4  \cf2 \strokec2 for\cf4 \strokec4  i \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 range\cf8 \strokec8 (\cf5 \strokec5 10\cf8 \strokec8 )]\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     noisy = \cf8 \strokec8 [\cf4 \strokec4 i.item\cf8 \strokec8 ()\cf4 \strokec4  \cf2 \strokec2 for\cf4 \strokec4  i \cf12 \strokec12 in\cf4 \strokec4  labels\cf8 \strokec8 ]\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     \cf2 \strokec2 for\cf4 \strokec4  idx \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 range\cf8 \strokec8 (\cf9 \strokec9 len\cf8 \strokec8 (\cf4 \strokec4 labels\cf8 \strokec8 )):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4         current = labels\cf8 \strokec8 [\cf4 \strokec4 idx\cf8 \strokec8 ]\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4         \cf2 \strokec2 if\cf4 \strokec4  rates\cf8 \strokec8 [\cf4 \strokec4 current\cf8 \strokec8 ]\cf4 \strokec4  > \cf5 \strokec5 0\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             rates\cf8 \strokec8 [\cf4 \strokec4 current\cf8 \strokec8 ]\cf4 \strokec4  -= \cf5 \strokec5 1\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             random = torch.randint\cf8 \strokec8 (\cf5 \strokec5 0\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 10\cf8 \strokec8 ,\cf4 \strokec4  \cf8 \strokec8 (\cf5 \strokec5 1\cf8 \strokec8 ,))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             \cf2 \strokec2 while\cf4 \strokec4  random == labels\cf8 \strokec8 [\cf4 \strokec4 idx\cf8 \strokec8 ]:\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4                 random = torch.randint\cf8 \strokec8 (\cf5 \strokec5 0\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 10\cf8 \strokec8 ,\cf4 \strokec4  \cf8 \strokec8 (\cf5 \strokec5 1\cf8 \strokec8 ,))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             noisy\cf8 \strokec8 [\cf4 \strokec4 idx\cf8 \strokec8 ]\cf4 \strokec4  = random.item\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     \cf2 \strokec2 return\cf4 \strokec4  noisy\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 load_data\cf4 \strokec4 (\cf10 \strokec10 noise_rate\cf4 \strokec4 =\cf5 \strokec5 0.4\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    transform = transforms.Compose\cf8 \strokec8 ([\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transforms.ToTensor\cf8 \strokec8 (),\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transforms.Normalize\cf8 \strokec8 ((\cf5 \strokec5 0.5\cf8 \strokec8 ,),\cf4 \strokec4  \cf8 \strokec8 (\cf5 \strokec5 0.5\cf8 \strokec8 ,))\cf4 \strokec4   \cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf8 \strokec8 ])\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    train_set = tv.datasets.FashionMNIST\cf8 \strokec8 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        root=\cf13 \strokec13 './data'\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train=\cf6 \strokec6 True\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        download=\cf6 \strokec6 True\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transform=transform\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    epsilon = noise_rate\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    noisy_labels = noise\cf8 \strokec8 (\cf4 \strokec4 torch.tensor\cf8 \strokec8 (\cf4 \strokec4 train_set.targets\cf8 \strokec8 ),\cf4 \strokec4  epsilon\cf8 \strokec8 )\cf4 \strokec4   \cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    train_set.targets = torch.tensor\cf8 \strokec8 (\cf4 \strokec4 noisy_labels\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    train_loader = torch.utils.data.DataLoader\cf8 \strokec8 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train_set\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        batch_size=train_batch_size\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        shuffle=\cf6 \strokec6 True\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        num_workers=\cf5 \strokec5 2\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_set = tv.datasets.FashionMNIST\cf8 \strokec8 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        root=\cf13 \strokec13 './data'\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train=\cf6 \strokec6 False\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        download=\cf6 \strokec6 True\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transform=transform\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_loader = torch.utils.data.DataLoader\cf8 \strokec8 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        test_set\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        batch_size=test_batch_size\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        shuffle=\cf6 \strokec6 False\cf8 \strokec8 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        num_workers=\cf5 \strokec5 2\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf9 \strokec9 print\cf8 \strokec8 (\cf13 \strokec13 "Data loaded successfully..."\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf2 \strokec2 return\cf4 \strokec4  train_loader\cf8 \strokec8 ,\cf4 \strokec4  test_loader\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 accuracy\cf4 \strokec4 (\cf10 \strokec10 model\cf4 \strokec4 , \cf10 \strokec10 x\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    \cf2 \strokec2 with\cf4 \strokec4  torch.no_grad\cf8 \strokec8 ():\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        correct = \cf5 \strokec5 0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        total = \cf5 \strokec5 0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 for\cf4 \strokec4  data \cf12 \strokec12 in\cf4 \strokec4  x\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            images\cf8 \strokec8 ,\cf4 \strokec4  labels = data\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            outputs = model\cf8 \strokec8 (\cf4 \strokec4 images\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            _\cf8 \strokec8 ,\cf4 \strokec4  predicted = torch.\cf9 \strokec9 max\cf8 \strokec8 (\cf4 \strokec4 outputs.data\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 1\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            total += labels.size\cf8 \strokec8 (\cf5 \strokec5 0\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            correct += \cf8 \strokec8 (\cf4 \strokec4 predicted == labels\cf8 \strokec8 )\cf4 \strokec4 .\cf9 \strokec9 sum\cf8 \strokec8 ()\cf4 \strokec4 .item\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4        \cf2 \strokec2 return\cf4 \strokec4  \cf8 \strokec8 (\cf5 \strokec5 100\cf4 \strokec4  * correct / total\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 train\cf4 \strokec4 (\cf10 \strokec10 train_loader\cf4 \strokec4 , \cf10 \strokec10 test_loader\cf4 \strokec4 , \cf10 \strokec10 model\cf4 \strokec4 , \cf10 \strokec10 criterion\cf4 \strokec4 , \cf10 \strokec10 optimizer\cf4 \strokec4 , \cf10 \strokec10 epoch\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    model.train\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    running_loss = \cf5 \strokec5 0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf2 \strokec2 for\cf4 \strokec4  i\cf8 \strokec8 ,\cf4 \strokec4  data \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 enumerate\cf8 \strokec8 (\cf4 \strokec4 train_loader\cf8 \strokec8 ,\cf4 \strokec4  \cf5 \strokec5 0\cf8 \strokec8 ):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        inputs\cf8 \strokec8 ,\cf4 \strokec4  labels = data\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        optimizer.zero_grad\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        outputs = model\cf8 \strokec8 (\cf4 \strokec4 inputs\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        loss = criterion\cf8 \strokec8 (\cf4 \strokec4 outputs\cf8 \strokec8 ,\cf4 \strokec4  labels\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        loss.backward\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        optimizer.step\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4        running_loss += loss.item\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 if\cf4 \strokec4  i % \cf5 \strokec5 200\cf4 \strokec4  == \cf5 \strokec5 199\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            \cf9 \strokec9 print\cf8 \strokec8 (\cf13 \strokec13 "[epoch %d, iter %5d] loss: %.3f"\cf4 \strokec4  % \cf8 \strokec8 (\cf4 \strokec4 epoch+\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  i+\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  running_loss / \cf5 \strokec5 200\cf8 \strokec8 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            running_loss = \cf5 \strokec5 0.0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    train_acc = accuracy\cf8 \strokec8 (\cf4 \strokec4 model\cf8 \strokec8 ,\cf4 \strokec4  train_loader\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_acc = accuracy\cf8 \strokec8 (\cf4 \strokec4 model\cf8 \strokec8 ,\cf4 \strokec4  test_loader\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf9 \strokec9 print\cf8 \strokec8 (\cf13 \strokec13 "epoch %d: train_acc %.3f, test_acc %.3f"\cf4 \strokec4  % \cf8 \strokec8 (\cf4 \strokec4 epoch+\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  train_acc\cf8 \strokec8 ,\cf4 \strokec4  test_acc\cf8 \strokec8 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf2 \strokec2 return\cf4 \strokec4  train_acc\cf8 \strokec8 ,\cf4 \strokec4  test_acc\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 def\cf4 \strokec4  \cf9 \strokec9 display\cf4 \strokec4 (\cf10 \strokec10 train_acc\cf4 \strokec4 , \cf10 \strokec10 test_acc\cf4 \strokec4 )\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    fig\cf8 \strokec8 ,\cf4 \strokec4  ax = plt.subplots\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    ax.plot\cf8 \strokec8 (\cf9 \strokec9 range\cf8 \strokec8 (\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  \cf9 \strokec9 len\cf8 \strokec8 (\cf4 \strokec4 train_acc\cf8 \strokec8 )\cf4 \strokec4  + \cf5 \strokec5 1\cf8 \strokec8 ),\cf4 \strokec4  train_acc\cf8 \strokec8 ,\cf4 \strokec4  color=\cf13 \strokec13 'r'\cf8 \strokec8 ,\cf4 \strokec4  label=\cf13 \strokec13 'train_acc'\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    ax.plot\cf8 \strokec8 (\cf9 \strokec9 range\cf8 \strokec8 (\cf5 \strokec5 1\cf8 \strokec8 ,\cf4 \strokec4  \cf9 \strokec9 len\cf8 \strokec8 (\cf4 \strokec4 test_acc\cf8 \strokec8 )\cf4 \strokec4  + \cf5 \strokec5 1\cf8 \strokec8 ),\cf4 \strokec4  test_acc\cf8 \strokec8 ,\cf4 \strokec4  color=\cf13 \strokec13 'b'\cf8 \strokec8 ,\cf4 \strokec4  label=\cf13 \strokec13 'test_acc'\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    ax.legend\cf8 \strokec8 (\cf4 \strokec4 loc=\cf13 \strokec13 'lower right'\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    plt.show\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 if\cf4 \strokec4  \cf10 \strokec10 __name__\cf4 \strokec4  == \cf13 \strokec13 '__main__'\cf8 \strokec8 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    \cf11 \strokec11 # input Fashion-MNIST\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    train_loader\cf8 \strokec8 ,\cf4 \strokec4  test_loader = load_data\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf11 \strokec11 # new model\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    net = Net\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    \cf11 \strokec11 # training\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    learning_rate = \cf5 \strokec5 0.001\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    momentum = \cf5 \strokec5 0.9\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    max_epoch = \cf5 \strokec5 20\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    criterion = nn.CrossEntropyLoss\cf8 \strokec8 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    optimizer = optim.Adam\cf8 \strokec8 (\cf4 \strokec4 net.parameters\cf8 \strokec8 (),\cf4 \strokec4  lr=learning_rate\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    train_acc = \cf8 \strokec8 []\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_acc = \cf8 \strokec8 []\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf2 \strokec2 for\cf4 \strokec4  epoch \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 range\cf8 \strokec8 (\cf4 \strokec4 max_epoch\cf8 \strokec8 ):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train_acc_t\cf8 \strokec8 ,\cf4 \strokec4  test_acc_t = train\cf8 \strokec8 (\cf4 \strokec4 train_loader\cf8 \strokec8 ,\cf4 \strokec4  test_loader\cf8 \strokec8 ,\cf4 \strokec4  net\cf8 \strokec8 ,\cf4 \strokec4  criterion\cf8 \strokec8 ,\cf4 \strokec4  optimizer\cf8 \strokec8 ,\cf4 \strokec4  epoch\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train_acc.append\cf8 \strokec8 (\cf4 \strokec4 train_acc_t\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        test_acc.append\cf8 \strokec8 (\cf4 \strokec4 test_acc_t\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    display\cf8 \strokec8 (\cf4 \strokec4 train_acc\cf8 \strokec8 ,\cf4 \strokec4  test_acc\cf8 \strokec8 )\cf4 \cb1 \strokec4 \
+\
+}

@@ -1,0 +1,213 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red183\green111\blue179;\red23\green23\blue23;\red202\green202\blue202;
+\red212\green212\blue212;\red167\green197\blue152;\red70\green137\blue204;\red67\green192\blue160;\red212\green214\blue154;
+\red140\green211\blue254;\red89\green156\blue62;\red113\green184\blue255;\red194\green126\blue101;}
+{\*\expandedcolortbl;;\cssrgb\c77255\c52549\c75294;\cssrgb\c11765\c11765\c11765;\cssrgb\c83137\c83137\c83137;
+\cssrgb\c86275\c86275\c86275;\cssrgb\c70980\c80784\c65882;\cssrgb\c33725\c61176\c83922;\cssrgb\c30588\c78824\c69020;\cssrgb\c86275\c86275\c66667;
+\cssrgb\c61176\c86275\c99608;\cssrgb\c41569\c66275\c30980;\cssrgb\c50980\c77647\c100000;\cssrgb\c80784\c56863\c47059;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 import\cf4 \strokec4  torch\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torch.nn \cf2 \strokec2 as\cf4 \strokec4  nn\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torch.nn.functional \cf2 \strokec2 as\cf4 \strokec4  F\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torch.optim \cf2 \strokec2 as\cf4 \strokec4  optim\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torchvision \cf2 \strokec2 as\cf4 \strokec4  tv\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  torchvision.transforms \cf2 \strokec2 as\cf4 \strokec4  transforms\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  matplotlib.pyplot \cf2 \strokec2 as\cf4 \strokec4  plt\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  numpy \cf2 \strokec2 as\cf4 \strokec4  np\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  math\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 import\cf4 \strokec4  os\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 from\cf4 \strokec4  sklearn.metrics \cf2 \strokec2 import\cf4 \strokec4  roc_curve\cf5 \strokec5 ,\cf4 \strokec4  auc\cf4 \cb1 \strokec4 \
+\
+\cf2 \cb3 \strokec2 from\cf4 \strokec4  torch.optim.lr_scheduler \cf2 \strokec2 import\cf4 \strokec4  StepLR\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4 train_batch_size = \cf6 \strokec6 64\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4 test_batch_size = \cf6 \strokec6 1000\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 \strokec7 class\cf4 \strokec4  \cf8 \strokec8 Net\cf4 \strokec4 (\cf8 \strokec8 nn\cf4 \strokec4 .\cf8 \strokec8 Module\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    \cf7 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 __init__\cf4 \strokec4 (\cf10 \strokec10 self\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        super\cf5 \strokec5 (\cf4 \strokec4 Net\cf5 \strokec5 ,\cf4 \strokec4  \cf10 \strokec10 self\cf5 \strokec5 )\cf4 \strokec4 .\cf9 \strokec9 __init__\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .conv1 = nn.Conv2d\cf5 \strokec5 (\cf6 \strokec6 3\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 6\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 5\cf5 \strokec5 )\cf4 \strokec4   \cf11 \strokec11 # Adjust input channels to 3 for CIFAR-10\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .conv2 = nn.Conv2d\cf5 \strokec5 (\cf6 \strokec6 6\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 16\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 5\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .fc1 = nn.Linear\cf5 \strokec5 (\cf6 \strokec6 16\cf4 \strokec4  * \cf6 \strokec6 5\cf4 \strokec4  * \cf6 \strokec6 5\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 120\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .fc2 = nn.Linear\cf5 \strokec5 (\cf6 \strokec6 120\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 84\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf10 \strokec10 self\cf4 \strokec4 .fc3 = nn.Linear\cf5 \strokec5 (\cf6 \strokec6 84\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 10\cf5 \strokec5 )\cf4 \strokec4   \cf11 \strokec11 # Adjust output to 10 for CIFAR-10\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    \cf7 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 forward\cf4 \strokec4 (\cf10 \strokec10 self\cf4 \strokec4 , \cf10 \strokec10 x\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.max_pool2d\cf5 \strokec5 (\cf4 \strokec4 F.relu\cf5 \strokec5 (\cf10 \strokec10 self\cf4 \strokec4 .conv1\cf5 \strokec5 (\cf4 \strokec4 x\cf5 \strokec5 )),\cf4 \strokec4  \cf6 \strokec6 2\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.max_pool2d\cf5 \strokec5 (\cf4 \strokec4 F.relu\cf5 \strokec5 (\cf10 \strokec10 self\cf4 \strokec4 .conv2\cf5 \strokec5 (\cf4 \strokec4 x\cf5 \strokec5 )),\cf4 \strokec4  \cf6 \strokec6 2\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = x.view\cf5 \strokec5 (\cf6 \strokec6 -1\cf5 \strokec5 ,\cf4 \strokec4  \cf10 \strokec10 self\cf4 \strokec4 .num_flat_features\cf5 \strokec5 (\cf4 \strokec4 x\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.relu\cf5 \strokec5 (\cf10 \strokec10 self\cf4 \strokec4 .fc1\cf5 \strokec5 (\cf4 \strokec4 x\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = F.relu\cf5 \strokec5 (\cf10 \strokec10 self\cf4 \strokec4 .fc2\cf5 \strokec5 (\cf4 \strokec4 x\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        x = \cf10 \strokec10 self\cf4 \strokec4 .fc3\cf5 \strokec5 (\cf4 \strokec4 x\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 return\cf4 \strokec4  x\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    \cf7 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 num_flat_features\cf4 \strokec4 (\cf10 \strokec10 self\cf4 \strokec4 , \cf10 \strokec10 x\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        size = x.size\cf5 \strokec5 ()[\cf6 \strokec6 1\cf5 \strokec5 :]\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        num_features = \cf6 \strokec6 1\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 for\cf4 \strokec4  s \cf12 \strokec12 in\cf4 \strokec4  size\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            num_features *= s\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 return\cf4 \strokec4  num_features\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 load_data\cf4 \strokec4 ()\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    transform = transforms.Compose\cf5 \strokec5 ([\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transforms.Resize\cf5 \strokec5 ((\cf6 \strokec6 32\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 32\cf5 \strokec5 )),\cf4 \strokec4   \cf11 \strokec11 # Resize images to 32x32 for CIFAR-10\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transforms.ToTensor\cf5 \strokec5 (),\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transforms.Normalize\cf5 \strokec5 ((\cf6 \strokec6 0.5\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 0.5\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 0.5\cf5 \strokec5 ),\cf4 \strokec4  \cf5 \strokec5 (\cf6 \strokec6 0.5\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 0.5\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 0.5\cf5 \strokec5 ))\cf4 \strokec4   \cf11 \strokec11 # Adjust normalization for CIFAR-10\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf5 \strokec5 ])\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    train_set = tv.datasets.CIFAR10\cf5 \strokec5 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        root=\cf13 \strokec13 './data'\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train=\cf7 \strokec7 True\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        download=\cf7 \strokec7 True\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transform=transform\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    train_loader = torch.utils.data.DataLoader\cf5 \strokec5 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train_set\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        batch_size=train_batch_size\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        shuffle=\cf7 \strokec7 True\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        num_workers=\cf6 \strokec6 2\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_set = tv.datasets.CIFAR10\cf5 \strokec5 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        root=\cf13 \strokec13 './data'\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train=\cf7 \strokec7 False\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        download=\cf7 \strokec7 True\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        transform=transform\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_loader = torch.utils.data.DataLoader\cf5 \strokec5 (\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        test_set\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        batch_size=test_batch_size\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        shuffle=\cf7 \strokec7 False\cf5 \strokec5 ,\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        num_workers=\cf6 \strokec6 2\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf9 \strokec9 print\cf5 \strokec5 (\cf13 \strokec13 "Data loaded successfully..."\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf2 \strokec2 return\cf4 \strokec4  train_loader\cf5 \strokec5 ,\cf4 \strokec4  test_loader\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 accuracy\cf4 \strokec4 (\cf10 \strokec10 model\cf4 \strokec4 , \cf10 \strokec10 data_loader\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    \cf2 \strokec2 with\cf4 \strokec4  torch.no_grad\cf5 \strokec5 ():\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        correct = \cf6 \strokec6 0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        total = \cf6 \strokec6 0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 for\cf4 \strokec4  data \cf12 \strokec12 in\cf4 \strokec4  data_loader\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            images\cf5 \strokec5 ,\cf4 \strokec4  labels = data\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            outputs = model\cf5 \strokec5 (\cf4 \strokec4 images\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            _\cf5 \strokec5 ,\cf4 \strokec4  predicted = torch.\cf9 \strokec9 max\cf5 \strokec5 (\cf4 \strokec4 outputs.data\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 1\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            total += labels.size\cf5 \strokec5 (\cf6 \strokec6 0\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            correct += \cf5 \strokec5 (\cf4 \strokec4 predicted == labels\cf5 \strokec5 )\cf4 \strokec4 .\cf9 \strokec9 sum\cf5 \strokec5 ()\cf4 \strokec4 .item\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    \cf2 \strokec2 return\cf4 \strokec4  \cf5 \strokec5 (\cf6 \strokec6 100\cf4 \strokec4  * correct / total\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 train\cf4 \strokec4 (\cf10 \strokec10 train_loader\cf4 \strokec4 , \cf10 \strokec10 test_loader\cf4 \strokec4 , \cf10 \strokec10 model\cf4 \strokec4 , \cf10 \strokec10 criterion\cf4 \strokec4 , \cf10 \strokec10 optimizer\cf4 \strokec4 , \cf10 \strokec10 scheduler\cf4 \strokec4 , \cf10 \strokec10 max_epoch\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    train_acc = \cf5 \strokec5 []\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    test_acc = \cf5 \strokec5 []\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    \cf2 \strokec2 for\cf4 \strokec4  epoch \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 range\cf5 \strokec5 (\cf4 \strokec4 max_epoch\cf5 \strokec5 ):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        model.train\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        running_loss = \cf6 \strokec6 0\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf2 \strokec2 for\cf4 \strokec4  i\cf5 \strokec5 ,\cf4 \strokec4  data \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 enumerate\cf5 \strokec5 (\cf4 \strokec4 train_loader\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 0\cf5 \strokec5 ):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            inputs\cf5 \strokec5 ,\cf4 \strokec4  labels = data\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            optimizer.zero_grad\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            outputs = model\cf5 \strokec5 (\cf4 \strokec4 inputs\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            loss = criterion\cf5 \strokec5 (\cf4 \strokec4 outputs\cf5 \strokec5 ,\cf4 \strokec4  labels\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            loss.backward\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            optimizer.step\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4            running_loss += loss.item\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4            \cf2 \strokec2 if\cf4 \strokec4  i % \cf6 \strokec6 200\cf4 \strokec4  == \cf6 \strokec6 199\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4                \cf9 \strokec9 print\cf5 \strokec5 (\cf13 \strokec13 "[epoch %d, iter %5d] loss: %.3f"\cf4 \strokec4  % \cf5 \strokec5 (\cf4 \strokec4 epoch+\cf6 \strokec6 1\cf5 \strokec5 ,\cf4 \strokec4  i+\cf6 \strokec6 1\cf5 \strokec5 ,\cf4 \strokec4  running_loss / \cf6 \strokec6 200\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4                running_loss = \cf6 \strokec6 0.0\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4        \cf11 \strokec11 # Update learning rate\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        scheduler.step\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4        train_acc_epoch = accuracy\cf5 \strokec5 (\cf4 \strokec4 model\cf5 \strokec5 ,\cf4 \strokec4  train_loader\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        test_acc_epoch = accuracy\cf5 \strokec5 (\cf4 \strokec4 model\cf5 \strokec5 ,\cf4 \strokec4  test_loader\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        train_acc.append\cf5 \strokec5 (\cf4 \strokec4 train_acc_epoch\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        test_acc.append\cf5 \strokec5 (\cf4 \strokec4 test_acc_epoch\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4        \cf9 \strokec9 print\cf5 \strokec5 (\cf13 \strokec13 "epoch %d: train_acc %.3f, test_acc %.3f"\cf4 \strokec4  % \cf5 \strokec5 (\cf4 \strokec4 epoch+\cf6 \strokec6 1\cf5 \strokec5 ,\cf4 \strokec4  train_acc_epoch\cf5 \strokec5 ,\cf4 \strokec4  test_acc_epoch\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4    \cf2 \strokec2 return\cf4 \strokec4  train_acc\cf5 \strokec5 ,\cf4 \strokec4  test_acc\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 display\cf4 \strokec4 (\cf10 \strokec10 train_acc\cf4 \strokec4 , \cf10 \strokec10 test_acc\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4    fig\cf5 \strokec5 ,\cf4 \strokec4  ax = plt.subplots\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    ax.plot\cf5 \strokec5 (\cf9 \strokec9 range\cf5 \strokec5 (\cf6 \strokec6 1\cf5 \strokec5 ,\cf4 \strokec4  \cf9 \strokec9 len\cf5 \strokec5 (\cf4 \strokec4 train_acc\cf5 \strokec5 )\cf4 \strokec4  + \cf6 \strokec6 1\cf5 \strokec5 ),\cf4 \strokec4  train_acc\cf5 \strokec5 ,\cf4 \strokec4  color=\cf13 \strokec13 'r'\cf5 \strokec5 ,\cf4 \strokec4  label=\cf13 \strokec13 'train_acc'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    ax.plot\cf5 \strokec5 (\cf9 \strokec9 range\cf5 \strokec5 (\cf6 \strokec6 1\cf5 \strokec5 ,\cf4 \strokec4  \cf9 \strokec9 len\cf5 \strokec5 (\cf4 \strokec4 test_acc\cf5 \strokec5 )\cf4 \strokec4  + \cf6 \strokec6 1\cf5 \strokec5 ),\cf4 \strokec4  test_acc\cf5 \strokec5 ,\cf4 \strokec4  color=\cf13 \strokec13 'b'\cf5 \strokec5 ,\cf4 \strokec4  label=\cf13 \strokec13 'test_acc'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    ax.legend\cf5 \strokec5 (\cf4 \strokec4 loc=\cf13 \strokec13 'lower right'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4    plt.show\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 \cb3 \strokec7 def\cf4 \strokec4  \cf9 \strokec9 plot_roc_curve\cf4 \strokec4 (\cf10 \strokec10 model\cf4 \strokec4 , \cf10 \strokec10 test_loader\cf4 \strokec4 )\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4     model.\cf9 \strokec9 eval\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     y_true = \cf5 \strokec5 []\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     y_scores = \cf5 \strokec5 []\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     \cf2 \strokec2 with\cf4 \strokec4  torch.no_grad\cf5 \strokec5 ():\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4         \cf2 \strokec2 for\cf4 \strokec4  data \cf12 \strokec12 in\cf4 \strokec4  test_loader\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             images\cf5 \strokec5 ,\cf4 \strokec4  labels = data\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             outputs = model\cf5 \strokec5 (\cf4 \strokec4 images\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             probabilities = torch.softmax\cf5 \strokec5 (\cf4 \strokec4 outputs\cf5 \strokec5 ,\cf4 \strokec4  dim=\cf6 \strokec6 1\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             y_true.extend\cf5 \strokec5 (\cf4 \strokec4 labels.numpy\cf5 \strokec5 ())\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4             y_scores.extend\cf5 \strokec5 (\cf4 \strokec4 probabilities.numpy\cf5 \strokec5 ())\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     y_true = np.array\cf5 \strokec5 (\cf4 \strokec4 y_true\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     y_scores = np.array\cf5 \strokec5 (\cf4 \strokec4 y_scores\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     num_classes = y_scores.shape\cf5 \strokec5 [\cf6 \strokec6 1\cf5 \strokec5 ]\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     fpr = \cf8 \strokec8 dict\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     tpr = \cf8 \strokec8 dict\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     roc_auc = \cf8 \strokec8 dict\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     \cf2 \strokec2 for\cf4 \strokec4  i \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 range\cf5 \strokec5 (\cf4 \strokec4 num_classes\cf5 \strokec5 ):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4         fpr\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ],\cf4 \strokec4  tpr\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ],\cf4 \strokec4  _ = roc_curve\cf5 \strokec5 (\cf4 \strokec4 y_true == i\cf5 \strokec5 ,\cf4 \strokec4  y_scores\cf5 \strokec5 [:,\cf4 \strokec4  i\cf5 \strokec5 ])\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4         roc_auc\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ]\cf4 \strokec4  = auc\cf5 \strokec5 (\cf4 \strokec4 fpr\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ],\cf4 \strokec4  tpr\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ])\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     plt.figure\cf5 \strokec5 (\cf4 \strokec4 figsize=\cf5 \strokec5 (\cf6 \strokec6 8\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 6\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     \cf2 \strokec2 for\cf4 \strokec4  i \cf12 \strokec12 in\cf4 \strokec4  \cf9 \strokec9 range\cf5 \strokec5 (\cf4 \strokec4 num_classes\cf5 \strokec5 ):\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4         plt.plot\cf5 \strokec5 (\cf4 \strokec4 fpr\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ],\cf4 \strokec4  tpr\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ],\cf4 \strokec4  label=\cf7 \strokec7 f\cf13 \strokec13 'Class \cf5 \strokec5 \{\cf4 \strokec4 i\cf5 \strokec5 \}\cf13 \strokec13  (AUC = \cf5 \strokec5 \{\cf4 \strokec4 roc_auc\cf5 \strokec5 [\cf4 \strokec4 i\cf5 \strokec5 ]\cf6 \strokec6 :.2f\cf5 \strokec5 \}\cf13 \strokec13 )'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.plot\cf5 \strokec5 ([\cf6 \strokec6 0\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 1\cf5 \strokec5 ],\cf4 \strokec4  \cf5 \strokec5 [\cf6 \strokec6 0\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 1\cf5 \strokec5 ],\cf4 \strokec4  color=\cf13 \strokec13 'navy'\cf5 \strokec5 ,\cf4 \strokec4  linestyle=\cf13 \strokec13 '--'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.xlim\cf5 \strokec5 ([\cf6 \strokec6 0.0\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 1.0\cf5 \strokec5 ])\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.ylim\cf5 \strokec5 ([\cf6 \strokec6 0.0\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 1.05\cf5 \strokec5 ])\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.xlabel\cf5 \strokec5 (\cf13 \strokec13 'False Positive Rate'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.ylabel\cf5 \strokec5 (\cf13 \strokec13 'True Positive Rate'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.title\cf5 \strokec5 (\cf13 \strokec13 'ROC Curve for Each Class'\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.legend\cf5 \strokec5 (\cf4 \strokec4 loc=\cf13 \strokec13 "lower right"\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     plt.show\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 if\cf4 \strokec4  \cf10 \strokec10 __name__\cf4 \strokec4  == \cf13 \strokec13 '__main__'\cf5 \strokec5 :\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 \strokec4     \cf11 \strokec11 # Input CIFAR-10\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     train_loader\cf5 \strokec5 ,\cf4 \strokec4  test_loader = load_data\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     \cf11 \strokec11 # New model\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     net = Net\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     \cf11 \strokec11 # Training\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     learning_rate = \cf6 \strokec6 0.0008\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     max_epoch = \cf6 \strokec6 30\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     criterion = nn.CrossEntropyLoss\cf5 \strokec5 ()\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     optimizer = optim.Adam\cf5 \strokec5 (\cf4 \strokec4 net.parameters\cf5 \strokec5 (),\cf4 \strokec4  lr=learning_rate\cf5 \strokec5 ,\cf4 \strokec4  betas=\cf5 \strokec5 (\cf6 \strokec6 0.9\cf5 \strokec5 ,\cf4 \strokec4  \cf6 \strokec6 0.999\cf5 \strokec5 ))\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     \cf11 \strokec11 # Learning rate scheduler\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     step_size = \cf6 \strokec6 15\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     gamma = \cf6 \strokec6 0.1\cf4 \cb1 \strokec4 \
+\cf4 \cb3 \strokec4     scheduler = StepLR\cf5 \strokec5 (\cf4 \strokec4 optimizer\cf5 \strokec5 ,\cf4 \strokec4  step_size=step_size\cf5 \strokec5 ,\cf4 \strokec4  gamma=gamma\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     train_acc\cf5 \strokec5 ,\cf4 \strokec4  test_acc = train\cf5 \strokec5 (\cf4 \strokec4 train_loader\cf5 \strokec5 ,\cf4 \strokec4  test_loader\cf5 \strokec5 ,\cf4 \strokec4  net\cf5 \strokec5 ,\cf4 \strokec4  criterion\cf5 \strokec5 ,\cf4 \strokec4  optimizer\cf5 \strokec5 ,\cf4 \strokec4  scheduler\cf5 \strokec5 ,\cf4 \strokec4  max_epoch\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     display\cf5 \strokec5 (\cf4 \strokec4 train_acc\cf5 \strokec5 ,\cf4 \strokec4  test_acc\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\
+\cf4 \cb3 \strokec4     plot_roc_curve\cf5 \strokec5 (\cf4 \strokec4 net\cf5 \strokec5 ,\cf4 \strokec4  test_loader\cf5 \strokec5 )\cf4 \cb1 \strokec4 \
+\
+}
